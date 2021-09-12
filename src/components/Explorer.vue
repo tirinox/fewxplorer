@@ -4,6 +4,10 @@ import FewmanCard from "./FewmanCard.vue";
 import mitt, {EVENTS} from "../helpers/mitt";
 import HelpModal from "./HelpModal.vue";
 
+function isNormalInteger(str) {
+    return /^\+?(0|[1-9]\d*)$/.test(str);
+}
+
 export default {
     components: {HelpModal, FewmanCard},
     props: {
@@ -27,6 +31,16 @@ export default {
             this.$refs.help.showHelp()
         },
 
+        clearQuery() {
+            this.query = ''
+            this.doSearch()
+        },
+
+        appendQuery(term) {
+            this.query = (this.query + ' ' + term).trim()
+            this.doSearch()
+        },
+
         doSearch() {
             const q = this.query.trim().toLowerCase()
             if (q === '') {
@@ -34,16 +48,15 @@ export default {
             } else if (q === 'help') {
                 this.query = ''
                 this.help()
+            } else if(isNormalInteger(q)) {
+                const token = parseInt(q)
+                this.results = this.fewData.filter(v => v.id === token)
             } else {
                 let words = q.match(/\b(\w+)\b/g)
-                const wordSet = new Set(words)
 
                 let desiredGender = null
-                const minTier = 0
-                const maxTier = 3
-                const minStars = 0
-                const maxStars = 1000
-
+                const desiredTiers = new Set()
+                const desiredStars = new Set()
                 this.isError = false
 
                 const fems = new Set(['f', 'fe', 'fem', 'female', 'femal', 'woman', 'girl'])
@@ -51,6 +64,7 @@ export default {
 
                 let attribWords = []
                 for (let i = 0; i < words.length; ++i) {
+                    const last = i === words.length - 1
                     const w = words[i]
                     if (fems.has(w)) {
                         if (desiredGender) {
@@ -64,13 +78,39 @@ export default {
                         } else {
                             desiredGender = 'Male'
                         }
+                    } else if (w === 'tier' || w === 't') {
+                        if (last) {
+                            return this.makeError()
+                        } else {
+                            ++i
+                            const next = words[i]
+                            if (isNormalInteger(next)) {
+                                const t = parseInt(next)
+                                if(t > 3) {
+                                    return this.makeError()
+                                }
+                                desiredTiers.add(t)
+                            }
+                        }
+                    } else if (w === 'stars' || w === 'star') {
+                        if (last) {
+                            return this.makeError()
+                        } else {
+                            ++i
+                            const next = words[i]
+                            if (isNormalInteger(next)) {
+                                desiredStars.add(parseInt(next))
+                            }
+                        }
                     } else {
                         attribWords.push(w)
                     }
                 }
 
-                console.log(`search gender = ${desiredGender}, tier = [${minTier}...${maxTier}],
-                stars = [${minStars}...${maxStars}], words = ${attribWords}`)
+                console.log(`search gender = ${desiredGender},
+                tiers = ${Array.from(desiredTiers).join(', ')},
+                stars = ${Array.from(desiredStars).join(', ')},
+                words = ${attribWords}`)
 
                 this.filterWords = attribWords
 
@@ -90,14 +130,18 @@ export default {
                     const starsArr = [hair_star, eyes_star, body_star, sex_star,
                         intel_star, career_star, curse_star, gift_star]
 
-                    const tier = Math.max.apply(null, starsArr)
-                    if (tier < minTier || tier > maxTier) {
-                        return false
+                    if (desiredTiers.size > 0) {
+                        const tier = Math.max.apply(null, starsArr)
+                        if (!desiredTiers.has(tier)) {
+                            return false
+                        }
                     }
 
-                    const totalStars = starsArr.reduce((a, c) => a + c, 0)
-                    if (totalStars < minStars || totalStars > maxStars) {
-                        return false
+                    if (desiredStars.size > 0) {
+                        const totalStars = starsArr.reduce((a, c) => a + c, 0)
+                        if (!desiredStars.has(totalStars)) {
+                            return false
+                        }
                     }
 
                     const genderMatch = desiredGender === null || desiredGender === gender
@@ -110,7 +154,7 @@ export default {
                     return attribWords && attribWords.every(w => text.includes(w))
                 }
 
-                this.results = this.fewData.filter(isGood).slice(0, 50)
+                this.results = this.fewData.filter(isGood)
             }
             mitt.emit(EVENTS.SCROLL_TOP)
         },
@@ -119,10 +163,11 @@ export default {
         }
     },
     created() {
-        this.fewData = Object.values(data).slice(0, 50)
+        this.fewData = Object.values(data).slice(0, 500)
         // this.fewData = Object.values(data)  // all
     },
     mounted() {
+        this.query = new URL(location.href).searchParams.get('q')
         this.doSearch()
         this.focusSearch()
     }
@@ -145,15 +190,30 @@ export default {
                    class="form-control"
             />
             <div class="input-group-append">
+                <button class="btn btn-danger" @click="clearQuery" v-show="this.query.length > 0">X</button>
                 <button class="btn btn-secondary" @click="help">?</button>
             </div>
+        </div>
+        <div class="input-group">
+            <button class="btn btn-sm btn-light" @click="appendQuery('male')">Male</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery('female')">Female</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery('tier 0')">Tier 0</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery('tier 1')">Tier 1</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery('tier 2')">Tier 2</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery('tier 3')">Tier 3</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery('stars 0')">0⭐</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery('stars 1')">1⭐</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery('stars 2')">2⭐</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery('stars 3')">3⭐</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery('stars 4')">4⭐</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery('stars 5')">5⭐</button>
         </div>
     </div>
 
     <div class="row">
         <FewmanCard :fewman="v" v-for="v in results" :key="v.id"></FewmanCard>
         <div class="text-center" v-if="!results.length">
-            <h2>Nothing found!</h2>
+            <h2 class="m-4">No FEWMANS like this</h2>
         </div>
     </div>
 </template>
@@ -163,6 +223,10 @@ export default {
 .toolbox {
     display: block;
     background: #F9FBFC;
+}
+
+.btn-light {
+    text-decoration: underline;
 }
 
 button, input {

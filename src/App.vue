@@ -77,7 +77,7 @@ export default {
 
 <style>
 
-html, body, a {
+html, body {
     font-family: 'Press Start 2P', sans-serif;
 }
 
