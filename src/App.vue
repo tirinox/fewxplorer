@@ -13,6 +13,10 @@ export default {
     },
     methods: {
         handleScroll: function () {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+                mitt.emit("load_more")
+            }
+
             if (this.scTimer) {
                 return;
             }
@@ -32,7 +36,10 @@ export default {
     mounted() {
         window.addEventListener('scroll', this.handleScroll);
         mitt.on(EVENTS.SCROLL_TOP, this.toTop)
-    }
+    },
+    onUnmounted() {
+        window.removeEventListener("scroll", this.handleScroll)
+    },
 }
 
 </script>
@@ -51,7 +58,7 @@ export default {
 
         <div class="row pt-4 pb-4">
             <div class="col-lg-12 mx-auto">
-                <img class="logo img-fluid float-start" src="/logo-few.png">
+                <img class="logo img-fluid float-start" src="/logo-few.png" alt="Project Logo">
                 <h1>FEWxplorer</h1>
                 <h6>It has FEW features, it is helpful for FEW.</h6>
                 <p><a href="https://www.fewmans.com/" target="_blank">Go to FEWMANS website.</a></p>
@@ -91,7 +98,8 @@ p, span, code {
 
 a {
     text-decoration: none !important;
-    color: #42b983 !important;
+    font-weight: bold;
+    color: #2a9766 !important;
 }
 
 body {

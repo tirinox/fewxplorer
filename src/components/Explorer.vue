@@ -8,6 +8,8 @@ function isNormalInteger(str) {
     return /^\+?(0|[1-9]\d*)$/.test(str);
 }
 
+const BATCH_SIZE = 42
+
 export default {
     components: {HelpModal, FewmanCard},
     props: {
@@ -19,6 +21,8 @@ export default {
             results: [],
             filterWords: [],
             isError: false,
+            nextIdentToScan: 0,
+            allLoaded: false,
         }
     },
     methods: {
@@ -41,18 +45,28 @@ export default {
             this.doSearch()
         },
 
-        doSearch() {
+        doSearch(more) {
+            more = more === 'more'
+            if(!more) {
+                console.info('new search')
+                this.nextIdentToScan = 0
+                this.results = []
+                this.allLoaded = false
+            } else if(this.allLoaded) {
+                return
+            }
+
             const q = this.query.trim().toLowerCase()
-            if (q === '') {
-                this.results = this.fewData
-            } else if (q === 'help') {
+            if (q === 'help') {
                 this.query = ''
                 this.help()
+                return
             } else if(isNormalInteger(q)) {
                 const token = parseInt(q)
                 this.results = this.fewData.filter(v => v.id === token)
+                this.allLoaded = true
             } else {
-                let words = q.match(/\b(\w+)\b/g)
+                let words = q.match(/\b(\w+)\b/g) || []
 
                 let desiredGender = null
                 const desiredTiers = new Set()
@@ -115,6 +129,10 @@ export default {
                 this.filterWords = attribWords
 
                 function isGood(item) {
+                    if(q === '') {
+                        return true
+                    }
+
                     const [
                         gender,
                         hair, hair_star,
@@ -154,23 +172,54 @@ export default {
                     return attribWords && attribWords.every(w => text.includes(w))
                 }
 
-                this.results = this.fewData.filter(isGood)
+                let thisBatch = []
+                for(let i = this.nextIdentToScan; i < this.fewData.length; ++i) {
+                    this.nextIdentToScan = i + 1
+                    const el = this.fewData[i]
+                    if(isGood(el)) {
+                        thisBatch.push(el)
+                    }
+                    if(thisBatch.length >= BATCH_SIZE) {
+                        break
+                    }
+                }
+
+                if(thisBatch.length < BATCH_SIZE) {
+                    this.allLoaded = true
+                }
+
+                console.info(`added ${thisBatch.length} elements`)
+
+                this.results.push(...thisBatch)
             }
-            mitt.emit(EVENTS.SCROLL_TOP)
+
+            if(!more) {
+                mitt.emit(EVENTS.SCROLL_TOP)
+            }
         },
         focusSearch() {
             this.$refs.searchQuery.focus();
+        },
+        loadMore() {
+            this.doSearch('more')
+        },
+        copyQuery() {
+            const url = location.protocol + '//' + location.host + location.pathname + '?q=' + encodeURI(this.query)
+            navigator.clipboard.writeText(url)
         }
     },
     created() {
-        this.fewData = Object.values(data).slice(0, 500)
-        // this.fewData = Object.values(data)  // all
+        // this.fewData = Object.values(data).slice(0, 500)
+        this.fewData = Object.values(data)  // all
     },
     mounted() {
-        this.query = new URL(location.href).searchParams.get('q')
+        this.query = new URL(location.href).searchParams.get('q') || ''
         this.doSearch()
         this.focusSearch()
-    }
+        mitt.on('load_more', () => {
+            this.loadMore()
+        })
+    },
 }
 
 </script>
@@ -178,7 +227,7 @@ export default {
 <template>
     <HelpModal ref="help"></HelpModal>
 
-    <div class="sticky-top toolbox my-3 p-2">
+    <div class="sticky-top toolbox mb-5 p-3">
         <div class="input-group">
             <input type="text"
                    tabindex="0"
@@ -191,6 +240,9 @@ export default {
             />
             <div class="input-group-append">
                 <button class="btn btn-danger" @click="clearQuery" v-show="this.query.length > 0">X</button>
+                <button class="btn btn-light btn-light" @click="copyQuery" v-show="this.query.length > 0">
+                    <img id="copy-img" alt="copy" src="/copy.svg" class="img-fluid">
+                </button>
                 <button class="btn btn-secondary" @click="help">?</button>
             </div>
         </div>
@@ -207,10 +259,11 @@ export default {
             <button class="btn btn-sm btn-light" @click="appendQuery('stars 3')">3⭐</button>
             <button class="btn btn-sm btn-light" @click="appendQuery('stars 4')">4⭐</button>
             <button class="btn btn-sm btn-light" @click="appendQuery('stars 5')">5⭐</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery(   'stars 6')">6⭐</button>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row m-1">
         <FewmanCard :fewman="v" v-for="v in results" :key="v.id"></FewmanCard>
         <div class="text-center" v-if="!results.length">
             <h2 class="m-4">No FEWMANS like this</h2>
@@ -235,5 +288,11 @@ button, input {
     border-radius: 0 !important;
 }
 
+#copy-img {
+    width: 16px;
+    padding: 0;
+    margin: 0;
+    /*padding: 2px;*/
+}
 
 </style>
