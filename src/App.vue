@@ -13,7 +13,8 @@ export default {
     },
     methods: {
         handleScroll: function () {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+            const listElm = document
+            if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight - 2) {
                 mitt.emit("load_more")
             }
 
@@ -130,7 +131,5 @@ h1, h2, h3, h4, h5, h6, button {
 ul {
     list-style-type:square;
 }
-
-
 
 </style>
