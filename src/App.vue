@@ -47,6 +47,47 @@ export default {
 
 <template>
     <div class="container-fluid min-vh-100">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <img class="img-fluid logo" src="/logo-few.png" alt="Project Logo">
+                    FEWxplorer
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Search</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Stats</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" target="_blank" href="https://etherscan.io/address/0xad5f6cdda157694439ef9f6dd409424321c74628">Contract</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" target="_blank" href="https://www.fewmans.com/">Main site</a>
+                        </li>
+<!--                        <li class="nav-item dropdown">-->
+<!--                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">-->
+<!--                                Stats-->
+<!--                            </a>-->
+<!--                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+<!--                                <li><a class="dropdown-item" href="#">Action</a></li>-->
+<!--                                <li><a class="dropdown-item" href="#">Another action</a></li>-->
+<!--                                <li><hr class="dropdown-divider"></li>-->
+<!--                                <li><a class="dropdown-item" href="#">Something else here</a></li>-->
+<!--                            </ul>-->
+<!--                        </li>-->
+
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+
         <button
             type="button"
             class="btn btn-danger btn-floating btn-lg"
@@ -57,14 +98,6 @@ export default {
             <span id="top-text">TOP</span>
         </button>
 
-        <div class="row pt-4 pb-4">
-            <div class="col-lg-12 mx-auto">
-                <img class="logo img-fluid float-start" src="/logo-few.png" alt="Project Logo">
-                <h1>FEWxplorer</h1>
-                <h6>It has FEW features, it is helpful for FEW.</h6>
-                <p><a href="https://www.fewmans.com/" target="_blank">Go to FEWMANS website.</a></p>
-            </div>
-        </div>
 
         <Explorer/>
 
@@ -102,7 +135,11 @@ p, span, code {
 a {
     text-decoration: none !important;
     font-weight: bold;
-    color: #2a9766 !important;
+    color: #083823 !important;
+}
+
+a:hover {
+    opacity: 84%;
 }
 
 body {
@@ -114,9 +151,7 @@ h1, h2, h3, h4, h5, h6, button {
 }
 
 .logo {
-    padding: 10px;
-    height: 80%;
-    width: auto;
+    width: 40px;
 }
 
 #btn-back-to-top {
@@ -132,6 +167,14 @@ h1, h2, h3, h4, h5, h6, button {
 
 ul {
     list-style-type: square;
+}
+
+.nav-item {
+    border-left: 2px solid #ccc;
+}
+
+.nav-link, .navbar-brand {
+    font-family: 'Press Start 2P', sans-serif !important;
 }
 
 </style>

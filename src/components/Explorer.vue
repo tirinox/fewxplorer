@@ -9,6 +9,7 @@ function isNormalInteger(str) {
 }
 
 const BATCH_SIZE = 42
+const MAX_TIER = 7
 
 export default {
     components: {HelpModal, FewmanCard},
@@ -100,7 +101,7 @@ export default {
                             const next = words[i]
                             if (isNormalInteger(next)) {
                                 const t = parseInt(next)
-                                if(t > 3) {
+                                if(t > MAX_TIER) {
                                     return this.makeError()
                                 }
                                 desiredTiers.add(t)
@@ -220,6 +221,21 @@ export default {
             this.loadMore()
         })
     },
+    computed: {
+        helperButtons() {
+            const arr = [
+                {value: 'male', caption: 'Male'},
+                {value: 'female', caption: 'Female'},
+            ]
+            for(let i = 0; i <= MAX_TIER; ++i) {
+                arr.push({value: `tier ${i}`, caption: `t${i}`})
+            }
+            for(let i = 0; i <= MAX_TIER; ++i) {
+                arr.push({value: `star ${i}`, caption: `⭐${i}`})
+            }
+            return arr
+        }
+    }
 }
 
 </script>
@@ -247,19 +263,9 @@ export default {
             </div>
         </div>
         <div class="input-group">
-            <button class="btn btn-sm btn-light" @click="appendQuery('male')">Male</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery('female')">Female</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery('tier 0')">Tier 0</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery('tier 1')">Tier 1</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery('tier 2')">Tier 2</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery('tier 3')">Tier 3</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery('stars 0')">0⭐</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery('stars 1')">1⭐</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery('stars 2')">2⭐</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery('stars 3')">3⭐</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery('stars 4')">4⭐</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery('stars 5')">5⭐</button>
-            <button class="btn btn-sm btn-light" @click="appendQuery(   'stars 6')">6⭐</button>
+            <button class="btn btn-sm btn-light" @click="appendQuery(value)"
+            v-for="{value, caption} in helperButtons">{{ caption }}</button>
+
         </div>
     </div>
 
