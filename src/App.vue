@@ -73,8 +73,10 @@ export default {
                 <div class="row">
                     <div class="col-md-12 mt-md-0 mt-3 pb-3">
                     <span>
-                    © 2021 FEW community. If you want, drop a FEW donations here:
-                    <i>0x44F7f2cE1A46Ca5C78D6C0701D192A613890c20E</i>
+                    <strong>© 2021 FEW community.</strong> <br>
+                        If you want, drop a FEW donations here:
+                    <i>0x44F7f2cE1A46Ca5C78D6C0701D192A613890c20E</i><br>
+                        <small>v.0.0.2</small>
                     </span>
                     </div>
                 </div>
@@ -129,7 +131,7 @@ h1, h2, h3, h4, h5, h6, button {
 }
 
 ul {
-    list-style-type:square;
+    list-style-type: square;
 }
 
 </style>
