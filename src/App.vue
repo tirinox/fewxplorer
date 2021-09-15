@@ -98,7 +98,6 @@ export default {
             <span id="top-text">TOP</span>
         </button>
 
-
         <Explorer/>
 
         <footer class="page-footer font-small blue pt-4 pb-5">
@@ -109,7 +108,7 @@ export default {
                     <strong>© 2021 FEW community.</strong> <br>
                         If you want, drop a FEW donations here:
                     <i>0x44F7f2cE1A46Ca5C78D6C0701D192A613890c20E</i><br>
-                        <small>v.0.0.2</small>
+                        <small>v.0.0.3</small>
                     </span>
                     </div>
                 </div>
@@ -155,9 +154,19 @@ h1, h2, h3, h4, h5, h6, button {
 }
 
 #btn-back-to-top {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
+    /*display: none; !* Hidden by default *!*/
+    position: fixed; /* Fixed/sticky position */
+    bottom: 20px; /* Place the button at the bottom of the page */
+    right: 30px; /* Place the button 30px from the right */
+    z-index: 999; /* Make sure it does not overlap */
+    border: none; /* Remove borders */
+    outline: none; /* Remove outline */
+    background-color: #ef2929; /* Set a background color */
+    color: white; /* Text color */
+    cursor: pointer; /* Add a mouse pointer on hover */
+    padding: 15px; /* Some padding */
+    border-radius: 10px; /* Rounded corners */
+    font-size: 18px; /* Increase font size */
 }
 
 #top-text {

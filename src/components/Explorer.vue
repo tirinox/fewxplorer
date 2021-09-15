@@ -265,7 +265,6 @@ export default {
         <div class="input-group">
             <button class="btn btn-sm btn-light" @click="appendQuery(value)"
             v-for="{value, caption} in helperButtons">{{ caption }}</button>
-
         </div>
     </div>
 

@@ -11,10 +11,12 @@
     "bootstrap": "^5.1.1",
     "mitt": "^3.0.0",
     "vue": "^3.2.6",
-    "vue-debounce": "^3.0.1"
+    "vue-debounce": "^3.0.1",
+    "vue-router": "4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.6.1",
+    "@vue/cli-plugin-router": "~4.5.0",
     "@vue/compiler-sfc": "^3.2.6",
     "vite": "^2.5.4"
   }
