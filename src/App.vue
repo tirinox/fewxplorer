@@ -1,6 +1,7 @@
 <script>
 import Explorer from './components/Explorer.vue'
 import mitt, {EVENTS} from "./helpers/mitt";
+import {FEWMANS_CONTRACT} from "./data/opensea";
 
 export default {
     name: "App",
@@ -33,6 +34,14 @@ export default {
                 behavior: "smooth"
             });
         },
+    },
+    computed: {
+        linkHolders() {
+            return `https://etherscan.io/token/${FEWMANS_CONTRACT}#balances`
+        },
+        linkContract() {
+            return `https://etherscan.io/address/${FEWMANS_CONTRACT}`
+        }
     },
     mounted() {
         window.addEventListener('scroll', this.handleScroll);
@@ -71,8 +80,8 @@ export default {
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="https://www.fewmans.com/">Main site</a></li>
                                 <li><a class="dropdown-item" href="https://opensea.io/collection/fewmans">Open Sea</a></li>
-                                <li><a class="dropdown-item" href="https://etherscan.io/address/0xad5f6cdda157694439ef9f6dd409424321c74628">Contract</a></li>
-                                <li><a class="dropdown-item" href="https://etherscan.io/token/0xad5f6cdda157694439ef9f6dd409424321c74628#balances">Holders</a></li>
+                                <li><a class="dropdown-item" :href="linkContract">Contract</a></li>
+                                <li><a class="dropdown-item" :href="linkHolders">Holders</a></li>
 <!--                                <li><hr class="dropdown-divider"></li>-->
                             </ul>
                         </li>
@@ -103,7 +112,7 @@ export default {
                     <strong>© 2021 FEW community.</strong> <br>
                         If you want, drop a FEW donations here:<br>
                     <small><i>0x44F7f2cE1A46Ca5C78D6C0701D192A613890c20E</i></small><br>
-                        <small>v.0.0.5</small>
+                        <small>v.0.0.6</small>
                     </span>
                     </div>
                 </div>

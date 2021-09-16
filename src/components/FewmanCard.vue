@@ -63,11 +63,9 @@
             </div>
             <div class="card-footer">
                 <p>
-                    <a :href="'https://opensea.io/assets/0xad5f6cdda157694439ef9f6dd409424321c74628/'+ fewman.id"
-                       target="_blank">Buy</a>
+                    <a :href="linkOpenSea" target="_blank">Buy</a>
                     ▪
-                    <a :href="'https://etherscan.io/token/0xad5f6cdda157694439ef9f6dd409424321c74628?a=' + fewman.id"
-                       target="_blank">Scan</a>
+                    <a :href="linkScan" target="_blank">Scan</a>
                     ▪
                     <a @click="isChildNow = false" v-if="isChildNow">Back</a>
                     <router-link :to="'/match/' + fewman.id" v-if="!child">Match</router-link>
@@ -81,6 +79,7 @@
 <script>
 
 import {FewmanDB} from "../data/provider";
+import {FEWMANS_CONTRACT} from "../data/opensea";
 
 const LEFT_NAMES = [
     'Hair', 'Eyes', 'Body', 'Sexuality'
@@ -113,6 +112,12 @@ export default {
         },
         sourceFewman() {
             return this.isChildNow ? this.child : this.fewman
+        },
+        linkOpenSea() {
+            return `https://opensea.io/assets/${FEWMANS_CONTRACT}`
+        },
+        linkScan() {
+            return `https://etherscan.io/token/${FEWMANS_CONTRACT}?a=/${this.fewman.id}`
         }
     },
     methods: {
