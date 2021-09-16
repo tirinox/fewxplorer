@@ -77,6 +77,8 @@ export default {
                 const fems = new Set(['f', 'fe', 'fem', 'female', 'femal', 'woman', 'girl'])
                 const males = new Set(['m', 'ma', 'mal', 'male', 'man', 'boy'])
 
+                // todo: like word handle!
+
                 let attribWords = []
                 for (let i = 0; i < words.length; ++i) {
                     const last = i === words.length - 1
@@ -243,7 +245,7 @@ export default {
 <template>
     <HelpModal ref="help"></HelpModal>
 
-    <div class="sticky-top toolbox mb-5 p-3">
+    <div class="toolbox mb-5 p-3">
         <div class="input-group">
             <input type="text"
                    tabindex="0"

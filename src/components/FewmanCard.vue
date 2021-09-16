@@ -24,13 +24,19 @@
                     <div class="col col-6 attr">
                         <div class="pt-2">
                             <span class="attr-head">{{ leftNames[i] }}</span><br>
-                            <span class="attr-val">{{ param(i) }}</span>
+                            <span class="attr-val">
+                                {{ paramName(i) }}
+                                <img alt="star" src="star.png" class="star" v-for="_ in paramStars(i)">
+                            </span>
                         </div>
                     </div>
                     <div class="col col-6 attr">
                         <div class="pt-2">
                             <span class="attr-head">{{ rightNames[i] }}</span><br>
-                            <span class="attr-val">{{ param(i + 4) }}</span>
+                            <span class="attr-val">
+                                {{ paramName(i + 4) }}
+                                <img alt="star" src="star.png" class="star" v-for="_ in paramStars(i + 4)">
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -42,6 +48,9 @@
                     ▪
                     <a :href="'https://etherscan.io/token/0xad5f6cdda157694439ef9f6dd409424321c74628?a=' + fewman.id"
                        target="_blank" >Scan</a>
+                    ▪
+                    <a :href="'/?q=like%20' + fewman.id"
+                       target="_blank" >Like me</a>
                 </p>
             </div>
         </div>
@@ -77,10 +86,12 @@ export default {
         }
     },
     methods: {
-        param(i) {
-            const p = this.fewman.p
-            return p[i * 2 + 1] + ' ' + '⭐'.repeat(p[i * 2 + 2])
+        paramName(i) {
+            return this.fewman.p[i * 2 + 1]
         },
+        paramStars(i) {
+            return this.fewman.p[i * 2 + 2]
+        }
     }
 }
 </script>
@@ -148,6 +159,11 @@ a {
 
 .card-footer {
     height: 40px;
+}
+
+.star {
+    height: 10pt;
+    margin-bottom: 2pt;
 }
 
 </style>

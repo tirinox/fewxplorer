@@ -64,23 +64,18 @@ export default {
                         <li class="nav-item">
                             <a class="nav-link" href="#">Stats</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="https://etherscan.io/address/0xad5f6cdda157694439ef9f6dd409424321c74628">Contract</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" aria-current="page" target="_blank" href="https://www.fewmans.com/">Main site</a>
-                        </li>
-<!--                        <li class="nav-item dropdown">-->
-<!--                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                                Stats-->
-<!--                            </a>-->
-<!--                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">-->
-<!--                                <li><a class="dropdown-item" href="#">Action</a></li>-->
-<!--                                <li><a class="dropdown-item" href="#">Another action</a></li>-->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Links
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="https://www.fewmans.com/">Main site</a></li>
+                                <li><a class="dropdown-item" href="https://opensea.io/collection/fewmans">Open Sea</a></li>
+                                <li><a class="dropdown-item" href="https://etherscan.io/address/0xad5f6cdda157694439ef9f6dd409424321c74628">Contract</a></li>
+                                <li><a class="dropdown-item" href="https://etherscan.io/token/0xad5f6cdda157694439ef9f6dd409424321c74628#balances">Holders</a></li>
 <!--                                <li><hr class="dropdown-divider"></li>-->
-<!--                                <li><a class="dropdown-item" href="#">Something else here</a></li>-->
-<!--                            </ul>-->
-<!--                        </li>-->
+                            </ul>
+                        </li>
 
                     </ul>
 
@@ -106,9 +101,9 @@ export default {
                     <div class="col-md-12 mt-md-0 mt-3 pb-3">
                     <span>
                     <strong>© 2021 FEW community.</strong> <br>
-                        If you want, drop a FEW donations here:
-                    <i>0x44F7f2cE1A46Ca5C78D6C0701D192A613890c20E</i><br>
-                        <small>v.0.0.3</small>
+                        If you want, drop a FEW donations here:<br>
+                    <small><i>0x44F7f2cE1A46Ca5C78D6C0701D192A613890c20E</i></small><br>
+                        <small>v.0.0.4</small>
                     </span>
                     </div>
                 </div>
