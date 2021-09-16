@@ -7,9 +7,16 @@
                     <span class="male gender" v-else>Male</span>
                 </div>
                 <div class="float-end few-tier gender">
-                    Tier {{ fewman.tier }}
+                    Tier {{ sourceFewman.tier }}
                 </div>
-                <h6 class="few-title">Fewman #{{ fewman.id }}</h6>
+
+                <h6 class="few-title" v-if="child && isChildNow">
+                    #{{ fewman.id }}'s child
+                </h6>
+                <h6 class="few-title" v-else>
+                    Fewman #{{ fewman.id }}
+                </h6>
+
             </div>
             <div class="card-body">
                 <div class="row">
@@ -22,7 +29,7 @@
                 </div>
                 <div class="row" v-for="i in [0, 1, 2, 3]">
                     <div class="col col-6 attr">
-                        <div class="pt-2">
+                        <div class="py-1">
                             <span class="attr-head">{{ leftNames[i] }}</span><br>
                             <span class="attr-val">
                                 {{ paramName(i) }}
@@ -31,7 +38,7 @@
                         </div>
                     </div>
                     <div class="col col-6 attr">
-                        <div class="pt-2">
+                        <div class="py-1">
                             <span class="attr-head">{{ rightNames[i] }}</span><br>
                             <span class="attr-val">
                                 {{ paramName(i + 4) }}
@@ -43,8 +50,8 @@
             </div>
             <div class="card-footer footer-2">
                 <div class="total float-end">
-                    <div v-if="fewman.stars > 0">
-                        Total {{ fewman.stars }}<img alt="star" src="/img/star.png" class="star">
+                    <div v-if="sourceFewman.stars > 0">
+                        Total {{ sourceFewman.stars }}<img alt="star" src="/img/star.png" class="star">
                     </div>
                     <div v-else>
                         Common
@@ -62,7 +69,9 @@
                     <a :href="'https://etherscan.io/token/0xad5f6cdda157694439ef9f6dd409424321c74628?a=' + fewman.id"
                        target="_blank">Scan</a>
                     ▪
-                    <router-link :to="'/match/' + fewman.id">Match</router-link>
+                    <a @click="isChildNow = false" v-if="isChildNow">Back</a>
+                    <router-link :to="'/match/' + fewman.id" v-if="!child">Match</router-link>
+                    <a @click="isChildNow = true" v-if="child && !isChildNow">Child?</a>
                 </p>
             </div>
         </div>
@@ -83,10 +92,15 @@ const RIGHT_NAMES = [
 
 export default {
     name: "FewmanCard",
-    props: ['fewman'],
+    props: ['fewman', 'child'],
+    data() {
+        return {
+            isChildNow: false
+        }
+    },
     computed: {
         isFem() {
-            return this.fewman.p[0] === 'Female'
+            return this.sourceFewman.p[0] === 'Female'
         },
         leftNames() {
             return LEFT_NAMES
@@ -95,16 +109,19 @@ export default {
             return RIGHT_NAMES
         },
         rarity() {
-            return FewmanDB.rarityByStar(this.fewman)
+            return FewmanDB.rarityByStar(this.sourceFewman)
+        },
+        sourceFewman() {
+            return this.isChildNow ? this.child : this.fewman
         }
     },
     methods: {
         paramName(i) {
-            return this.fewman.p[i * 2 + 1]
+            return this.sourceFewman.p[i * 2 + 1]
         },
         paramStars(i) {
-            return this.fewman.p[i * 2 + 2]
-        }
+            return this.sourceFewman.p[i * 2 + 2]
+        },
     }
 }
 </script>

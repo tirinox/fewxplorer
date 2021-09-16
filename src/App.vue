@@ -122,7 +122,7 @@ html, body {
     font-family: "Courier New", Courier, monospace;
 }
 
-p, span, code {
+p, span, code, li {
     font-family: "Courier New", Courier, monospace;
 }
 
