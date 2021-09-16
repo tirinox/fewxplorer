@@ -49,20 +49,20 @@ export default {
     <div class="container-fluid min-vh-100">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">
-                    <img class="img-fluid logo" src="/logo-few.png" alt="Project Logo">
+                <router-link class="navbar-brand" to="/">
+                    <img class="img-fluid logo" src="/img/logo-few.png" alt="Project Logo">
                     FEWxplorer
-                </a>
+                </router-link>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Search</a>
+                            <router-link class="nav-link" to="/">Search</router-link>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Stats</a>
+                            <router-link class="nav-link" to="/stats">Stats</router-link>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -93,7 +93,7 @@ export default {
             <span id="top-text">TOP</span>
         </button>
 
-        <Explorer/>
+        <router-view />
 
         <footer class="page-footer font-small blue pt-4 pb-5">
             <div class="container-fluid text-center text-md-left">
@@ -103,7 +103,7 @@ export default {
                     <strong>© 2021 FEW community.</strong> <br>
                         If you want, drop a FEW donations here:<br>
                     <small><i>0x44F7f2cE1A46Ca5C78D6C0701D192A613890c20E</i></small><br>
-                        <small>v.0.0.4</small>
+                        <small>v.0.0.5</small>
                     </span>
                     </div>
                 </div>

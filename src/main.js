@@ -5,5 +5,6 @@ import "./assets/normalize.css"
 import "bootstrap"
 
 import vueDebounce from 'vue-debounce'
+import router from "./router";
 
-createApp(App).use(vueDebounce).mount('#app')
+createApp(App).use(router).use(vueDebounce).mount('#app')

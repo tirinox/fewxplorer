@@ -7,7 +7,7 @@
                     <span class="male gender" v-else>Male</span>
                 </div>
                 <div class="float-end few-tier gender">
-                    Tier {{ tier }}
+                    Tier {{ fewman.tier }}
                 </div>
                 <h6 class="few-title">Fewman #{{ fewman.id }}</h6>
             </div>
@@ -26,7 +26,7 @@
                             <span class="attr-head">{{ leftNames[i] }}</span><br>
                             <span class="attr-val">
                                 {{ paramName(i) }}
-                                <img alt="star" src="star.png" class="star" v-for="_ in paramStars(i)">
+                                <img alt="star" src="/img/star.png" class="star" v-for="_ in paramStars(i)">
                             </span>
                         </div>
                     </div>
@@ -35,11 +35,23 @@
                             <span class="attr-head">{{ rightNames[i] }}</span><br>
                             <span class="attr-val">
                                 {{ paramName(i + 4) }}
-                                <img alt="star" src="star.png" class="star" v-for="_ in paramStars(i + 4)">
+                                <img alt="star" src="/img/star.png" class="star" v-for="_ in paramStars(i + 4)">
                             </span>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="card-footer footer-2">
+
+                    <div class="total float-end">
+                        <div v-if="fewman.stars > 0">
+                            Total {{ fewman.stars }}<img alt="star" src="/img/star.png" class="star">
+                        </div>
+                        <div v-else>
+                            Common
+                        </div>
+                    </div>
+
             </div>
             <div class="card-footer">
                 <p>
@@ -49,8 +61,7 @@
                     <a :href="'https://etherscan.io/token/0xad5f6cdda157694439ef9f6dd409424321c74628?a=' + fewman.id"
                        target="_blank" >Scan</a>
                     ▪
-                    <a :href="'/?q=like%20' + fewman.id"
-                       target="_blank" >Like me</a>
+                    <router-link :to="'/match/' + fewman.id">Match</router-link>
                 </p>
             </div>
         </div>
@@ -73,10 +84,6 @@ export default {
     computed: {
         isFem() {
             return this.fewman.p[0] === 'Female'
-        },
-        tier() {
-            const p = this.fewman.p.slice(1)
-            return Math.max(...p.filter((v, i) => ((i - 1) % 2 === 0)))
         },
         leftNames() {
             return LEFT_NAMES
@@ -164,6 +171,16 @@ a {
 .star {
     height: 10pt;
     margin-bottom: 2pt;
+}
+
+.total {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 10pt;
+    color: #664;
+}
+
+.footer-2 {
+    background-color: #fefefe;
 }
 
 </style>

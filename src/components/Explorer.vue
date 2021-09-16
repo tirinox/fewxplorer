@@ -1,5 +1,5 @@
 <script>
-import data from '../data/fewmans_stars_new_mini.json'
+import {FewmanDB} from '../data/provider'
 import FewmanCard from "./FewmanCard.vue";
 import mitt, {EVENTS} from "../helpers/mitt";
 import HelpModal from "./HelpModal.vue";
@@ -48,12 +48,12 @@ export default {
 
         doSearch(more) {
             more = more === 'more'
-            if(!more) {
+            if (!more) {
                 console.info('new search')
                 this.nextIdentToScan = 0
                 this.results = []
                 this.allLoaded = false
-            } else if(this.allLoaded) {
+            } else if (this.allLoaded) {
                 return
             }
 
@@ -62,9 +62,9 @@ export default {
                 this.query = ''
                 this.help()
                 return
-            } else if(isNormalInteger(q)) {
-                const token = parseInt(q)
-                this.results = this.fewData.filter(v => v.id === token)
+            } else if (isNormalInteger(q)) {
+
+                this.results = [FewmanDB.findById(q)]
                 this.allLoaded = true
             } else {
                 let words = q.match(/\b(\w+)\b/g) || []
@@ -103,7 +103,7 @@ export default {
                             const next = words[i]
                             if (isNormalInteger(next)) {
                                 const t = parseInt(next)
-                                if(t > MAX_TIER) {
+                                if (t > MAX_TIER) {
                                     return this.makeError()
                                 }
                                 desiredTiers.add(t)
@@ -132,7 +132,7 @@ export default {
                 this.filterWords = attribWords
 
                 function isGood(item) {
-                    if(q === '') {
+                    if (q === '') {
                         return true
                     }
 
@@ -148,19 +148,14 @@ export default {
                         gift, gift_star
                     ] = item.p
 
-                    const starsArr = [hair_star, eyes_star, body_star, sex_star,
-                        intel_star, career_star, curse_star, gift_star]
-
                     if (desiredTiers.size > 0) {
-                        const tier = Math.max.apply(null, starsArr)
-                        if (!desiredTiers.has(tier)) {
+                        if (!desiredTiers.has(item.tier)) {
                             return false
                         }
                     }
 
                     if (desiredStars.size > 0) {
-                        const totalStars = starsArr.reduce((a, c) => a + c, 0)
-                        if (!desiredStars.has(totalStars)) {
+                        if (!desiredStars.has(item.stars)) {
                             return false
                         }
                     }
@@ -176,18 +171,18 @@ export default {
                 }
 
                 let thisBatch = []
-                for(let i = this.nextIdentToScan; i < this.fewData.length; ++i) {
+                for (let i = this.nextIdentToScan; i < this.fewData.length; ++i) {
                     this.nextIdentToScan = i + 1
                     const el = this.fewData[i]
-                    if(isGood(el)) {
+                    if (isGood(el)) {
                         thisBatch.push(el)
                     }
-                    if(thisBatch.length >= BATCH_SIZE) {
+                    if (thisBatch.length >= BATCH_SIZE) {
                         break
                     }
                 }
 
-                if(thisBatch.length < BATCH_SIZE) {
+                if (thisBatch.length < BATCH_SIZE) {
                     this.allLoaded = true
                 }
 
@@ -196,7 +191,7 @@ export default {
                 this.results.push(...thisBatch)
             }
 
-            if(!more) {
+            if (!more) {
                 mitt.emit(EVENTS.SCROLL_TOP)
             }
         },
@@ -212,8 +207,7 @@ export default {
         }
     },
     created() {
-        // this.fewData = Object.values(data).slice(0, 500)
-        this.fewData = Object.values(data)  // all
+        this.fewData = FewmanDB.asList()
     },
     mounted() {
         this.query = new URL(location.href).searchParams.get('q') || ''
@@ -229,10 +223,10 @@ export default {
                 {value: 'male', caption: 'Male'},
                 {value: 'female', caption: 'Female'},
             ]
-            for(let i = 0; i <= MAX_TIER; ++i) {
+            for (let i = 0; i <= MAX_TIER; ++i) {
                 arr.push({value: `tier ${i}`, caption: `t${i}`})
             }
-            for(let i = 0; i <= MAX_TIER; ++i) {
+            for (let i = 0; i <= MAX_TIER; ++i) {
                 arr.push({value: `star ${i}`, caption: `⭐${i}`})
             }
             return arr
@@ -259,14 +253,15 @@ export default {
             <div class="input-group-append">
                 <button class="btn btn-danger" @click="clearQuery" v-show="this.query.length > 0">X</button>
                 <button class="btn btn-light btn-light" @click="copyQuery" v-show="this.query.length > 0">
-                    <img id="copy-img" alt="copy" src="/copy.svg" class="img-fluid">
+                    <img id="copy-img" alt="copy" src="/img/copy.svg" class="img-fluid">
                 </button>
                 <button class="btn btn-secondary" @click="help">?</button>
             </div>
         </div>
         <div class="input-group">
             <button class="btn btn-sm btn-light" @click="appendQuery(value)"
-            v-for="{value, caption} in helperButtons">{{ caption }}</button>
+                    v-for="{value, caption} in helperButtons">{{ caption }}
+            </button>
         </div>
     </div>
 
