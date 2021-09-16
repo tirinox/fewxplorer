@@ -42,16 +42,17 @@
                 </div>
             </div>
             <div class="card-footer footer-2">
-
-                    <div class="total float-end">
-                        <div v-if="fewman.stars > 0">
-                            Total {{ fewman.stars }}<img alt="star" src="/img/star.png" class="star">
-                        </div>
-                        <div v-else>
-                            Common
-                        </div>
+                <div class="total float-end">
+                    <div v-if="fewman.stars > 0">
+                        Total {{ fewman.stars }}<img alt="star" src="/img/star.png" class="star">
                     </div>
-
+                    <div v-else>
+                        Common
+                    </div>
+                </div>
+                <div class="total">
+                    {{ Math.round(rarity * 100.0) / 100.0 }} %
+                </div>
             </div>
             <div class="card-footer">
                 <p>
@@ -59,7 +60,7 @@
                        target="_blank">Buy</a>
                     ▪
                     <a :href="'https://etherscan.io/token/0xad5f6cdda157694439ef9f6dd409424321c74628?a=' + fewman.id"
-                       target="_blank" >Scan</a>
+                       target="_blank">Scan</a>
                     ▪
                     <router-link :to="'/match/' + fewman.id">Match</router-link>
                 </p>
@@ -69,6 +70,8 @@
 </template>
 
 <script>
+
+import {FewmanDB} from "../data/provider";
 
 const LEFT_NAMES = [
     'Hair', 'Eyes', 'Body', 'Sexuality'
@@ -90,6 +93,9 @@ export default {
         },
         rightNames() {
             return RIGHT_NAMES
+        },
+        rarity() {
+            return FewmanDB.rarityByStar(this.fewman)
         }
     },
     methods: {
@@ -119,7 +125,7 @@ a {
 
 .gender {
     font-size: 8pt;
-    font-family: 'Press Start 2P', sans-serif ;
+    font-family: 'Press Start 2P', sans-serif;
 }
 
 .card-header {
@@ -128,7 +134,7 @@ a {
 
 .col-head {
     font-size: 8pt;
-    font-family: 'Press Start 2P', sans-serif ;
+    font-family: 'Press Start 2P', sans-serif;
     color: #666;
 }
 
