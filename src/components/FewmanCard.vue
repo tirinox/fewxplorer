@@ -114,10 +114,10 @@ export default {
             return this.isChildNow ? this.child : this.fewman
         },
         linkOpenSea() {
-            return `https://opensea.io/assets/${FEWMANS_CONTRACT}`
+            return `https://opensea.io/assets/${FEWMANS_CONTRACT}/${this.fewman.id}`
         },
         linkScan() {
-            return `https://etherscan.io/token/${FEWMANS_CONTRACT}?a=/${this.fewman.id}`
+            return `https://etherscan.io/token/${FEWMANS_CONTRACT}?a=${this.fewman.id}`
         }
     },
     methods: {
