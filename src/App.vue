@@ -78,10 +78,11 @@ export default {
                                 Links
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="https://www.fewmans.com/">Main site</a></li>
-                                <li><a class="dropdown-item" href="https://opensea.io/collection/fewmans">Open Sea</a></li>
-                                <li><a class="dropdown-item" :href="linkContract">Contract</a></li>
-                                <li><a class="dropdown-item" :href="linkHolders">Holders</a></li>
+                                <li><a class="dropdown-item" href="https://www.fewmans.com/" target="_blank">Main site</a></li>
+                                <li><a class="dropdown-item" href="https://opensea.io/collection/fewmans" target="_blank">Open Sea</a></li>
+                                <li><a class="dropdown-item" :href="linkContract" target="_blank">Contract</a></li>
+                                <li><a class="dropdown-item" :href="linkHolders" target="_blank">Holders</a></li>
+                                <li><a class="dropdown-item" href="https://etherscan.io/token/0x60e46a4dd91d10506d8efa2caa266e7191fe7ea8" target="_blank">FEWGold</a></li>
 <!--                                <li><hr class="dropdown-divider"></li>-->
                             </ul>
                         </li>
@@ -131,7 +132,7 @@ html, body {
     font-family: "Courier New", Courier, monospace;
 }
 
-p, span, code, li {
+p, span, code, li, strong {
     font-family: "Courier New", Courier, monospace;
 }
 

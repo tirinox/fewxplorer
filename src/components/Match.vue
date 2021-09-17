@@ -3,16 +3,23 @@
 import FewmanCard from "./FewmanCard.vue";
 import {FewmanDB} from "../data/provider";
 import mitt, {EVENTS} from "../helpers/mitt";
+import StarSelector from "./StarSelector.vue";
 
 export default {
-    components: {FewmanCard},
+    components: {StarSelector, FewmanCard},
     props: {
         msg: String
     },
     data() {
-        return {}
+        return {
+            maxStars: 10
+        }
     },
-    methods: {},
+    methods: {
+        updateMatches(i) {
+            this.maxStars = i
+        }
+    },
     created() {
 
     },
@@ -25,7 +32,7 @@ export default {
             if (!fewman) {
                 return []
             }
-            return FewmanDB.bestMatch(fewman)
+            return FewmanDB.bestMatch(fewman, this.maxStars)
         },
         subjectId() {
             return this.$route.params.token_id
@@ -58,7 +65,12 @@ export default {
                     <li>Two same (with star) attribute values simply sum stars</li>
                     <li>Two different attribute values -> dominant one (the one with more stars) is inherited</li>
                 </ol>
-
+            </div>
+            <div>
+                <div class="d-inline">
+                    <strong>Max stars of partner:</strong>
+                    <StarSelector :max-stars="10" :initial-stars="7" @change="updateMatches"></StarSelector>
+                </div>
             </div>
         </div>
     </div>

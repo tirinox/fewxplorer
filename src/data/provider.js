@@ -66,9 +66,10 @@ export class FewmanDB {
         }
     }
 
-    static bestMatch(fewman) {
+    static bestMatch(fewman, maxStars) {
+        maxStars = maxStars || 9999
         const results = []
-        const candidates = LIST.filter(f => f.gender !== fewman.gender)  // only f + m
+        const candidates = LIST.filter(f => f.gender !== fewman.gender && f.stars <= maxStars)  // only f + m
         for (const candidate of candidates) {
             if(candidate.id !== fewman.id) {
                 const result = this.breed(candidate, fewman)
