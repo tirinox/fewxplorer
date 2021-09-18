@@ -1,6 +1,16 @@
 <template>
     <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
         <div class="card">
+            <div
+                class="price-tag"
+                v-if="price > 0"
+                :class="{'price-bid': !buyNow}"
+            >
+                <span>{{ price }}
+                    <span v-if="buyNow">Eth!</span>
+                    <span v-else>Eth?</span>
+                </span>
+            </div>
             <div class="card-header">
                 <div class="float-end gender">
                     <span class="female gender" v-if="isFem">Female</span>
@@ -63,7 +73,17 @@
             </div>
             <div class="card-footer">
                 <p>
-                    <a :href="linkOpenSea" target="_blank">Buy</a>
+                    <a :href="linkOpenSea" target="_blank">
+                        <span v-if="price > 0">
+                            <span v-if="buyNow" class="text-success">
+                                Buy
+                            </span>
+                            <span v-else class="text-primary">
+                                Bid
+                            </span>
+                        </span>
+                        <span v-else>OpenSea</span>
+                    </a>
                     ▪
                     <a :href="linkScan" target="_blank">Scan</a>
                     ▪
@@ -94,7 +114,9 @@ export default {
     props: ['fewman', 'child'],
     data() {
         return {
-            isChildNow: false
+            isChildNow: false,
+            price: 0.0,
+            buyNow: false,
         }
     },
     computed: {
@@ -127,6 +149,13 @@ export default {
         paramStars(i) {
             return this.sourceFewman.p[i * 2 + 2]
         },
+    },
+    mounted() {
+        const priceData = FewmanDB.getPriceInfo(this.fewman.id)
+        if(priceData) {
+            this.price = priceData.price
+            this.buyNow = priceData.buyNow
+        }
     }
 }
 </script>
@@ -152,6 +181,17 @@ a {
 
 .card-header {
     padding-top: 20px;
+}
+
+.eth-text {
+    font-weight: bold;
+    font-size: 12pt;
+}
+
+.eth {
+    height: 12pt;
+    padding-bottom: 2pt;
+    padding-left: 2pt;
 }
 
 .col-head {
@@ -209,6 +249,22 @@ a {
 
 .footer-2 {
     background-color: #fefefe;
+}
+
+.price-tag {
+    position: absolute;
+    background: red;
+    left: -5%;
+    top: -4%;
+    color: white;
+    padding: 3pt;
+    font-size: 10pt;
+    font-weight: bold;
+    transform: rotate(-10deg);
+}
+
+.price-bid {
+    background-color: #0a53be;
 }
 
 </style>

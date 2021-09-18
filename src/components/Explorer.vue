@@ -3,6 +3,7 @@ import {FewmanDB} from '../data/provider'
 import FewmanCard from "./FewmanCard.vue";
 import mitt, {EVENTS} from "../helpers/mitt";
 import HelpModal from "./HelpModal.vue";
+import LoadView from "./LoadView.vue";
 
 function isNormalInteger(str) {
     return /^\+?(0|[1-9]\d*)$/.test(str);
@@ -12,7 +13,7 @@ const BATCH_SIZE = 42
 const MAX_TIER = 7
 
 export default {
-    components: {HelpModal, FewmanCard},
+    components: {LoadView, HelpModal, FewmanCard},
     props: {
         msg: String
     },
@@ -24,6 +25,7 @@ export default {
             isError: false,
             nextIdentToScan: 0,
             allLoaded: false,
+            loading: false,
         }
     },
     methods: {
@@ -42,7 +44,11 @@ export default {
         },
 
         appendQuery(term) {
-            this.query = (this.query + ' ' + term).trim()
+            if(this.query.includes(term)) {
+                this.query = this.query.replace(term, '').replace('  ', ' ').trim()
+            } else {
+                this.query = (this.query + ' ' + term).trim()
+            }
             this.doSearch()
         },
 
@@ -63,7 +69,6 @@ export default {
                 this.help()
                 return
             } else if (isNormalInteger(q)) {
-
                 this.results = [FewmanDB.findById(q)]
                 this.allLoaded = true
             } else {
@@ -78,12 +83,18 @@ export default {
                 const males = new Set(['m', 'ma', 'mal', 'male', 'man', 'boy'])
 
                 // todo: like word handle!
+                let buy = false
+                let price = false
 
                 let attribWords = []
                 for (let i = 0; i < words.length; ++i) {
                     const last = i === words.length - 1
                     const w = words[i]
-                    if (fems.has(w)) {
+                    if(w === 'buy') {
+                        buy = true
+                    } else if(w === 'price') {
+                        price = true
+                    } else if (fems.has(w)) {
                         if (desiredGender) {
                             return this.makeError()
                         } else {
@@ -136,6 +147,13 @@ export default {
                         return true
                     }
 
+                    if(buy && (!item.priceInfo || !item.priceInfo.buyNow)) {
+                        return false
+                    }
+                    if(price && (!item.priceInfo)) {
+                        return false
+                    }
+
                     const [
                         gender,
                         hair, hair_star,
@@ -171,9 +189,10 @@ export default {
                 }
 
                 let thisBatch = []
-                for (let i = this.nextIdentToScan; i < this.fewData.length; ++i) {
+                const data = FewmanDB.asList(buy)
+                for (let i = this.nextIdentToScan; i < data.length; ++i) {
                     this.nextIdentToScan = i + 1
-                    const el = this.fewData[i]
+                    const el = data[i]
                     if (isGood(el)) {
                         thisBatch.push(el)
                     }
@@ -207,19 +226,23 @@ export default {
         }
     },
     created() {
-        this.fewData = FewmanDB.asList()
     },
     mounted() {
-        this.query = new URL(location.href).searchParams.get('q') || ''
-        this.doSearch()
-        this.focusSearch()
-        mitt.on('load_more', () => {
-            this.loadMore()
+        this.loading = true
+        FewmanDB.loadPrices().then(() => {}).finally(() => {
+            this.query = new URL(location.href).searchParams.get('q') || ''
+            this.doSearch()
+            this.focusSearch()
+            mitt.on('load_more', () => {
+                this.loadMore()
+            })
+            this.loading = false
         })
     },
     computed: {
         helperButtons() {
             const arr = [
+                {value: 'buy', caption: 'Buy now'},
                 {value: 'male', caption: 'Male'},
                 {value: 'female', caption: 'Female'},
             ]
@@ -241,6 +264,8 @@ export default {
 
     <div class="toolbox mb-5 p-3">
         <div class="input-group">
+            <LoadView v-if="loading"></LoadView>
+
             <input type="text"
                    tabindex="0"
                    ref="searchQuery"
@@ -266,8 +291,8 @@ export default {
     </div>
 
     <div class="row m-1">
-        <FewmanCard :fewman="v" v-for="v in results" :key="v.id"></FewmanCard>
-        <div class="text-center" v-if="!results.length">
+        <FewmanCard :fewman="v" v-for="v in results" :key="v.id" v-if="!loading"></FewmanCard>
+        <div class="text-center" v-if="!results.length && !loading">
             <h2 class="m-4">No FEWMANS like this</h2>
         </div>
     </div>
@@ -296,5 +321,6 @@ button, input {
     margin: 0;
     /*padding: 2px;*/
 }
+
 
 </style>

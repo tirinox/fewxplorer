@@ -1,4 +1,7 @@
 import data from '../data/db/fewmans.json'
+import axios from "axios";
+
+const PRICE_API_URL = 'https://fewmans.xyz/fewpi/opensea/'
 
 for (let k of Object.keys(data.db)) {
     const fewman = data.db[k]
@@ -9,15 +12,79 @@ for (let k of Object.keys(data.db)) {
     fewman.gender = p[0]
 }
 
-const LIST = Object.values(data.db)
+const LIST = [...Object.values(data.db)]
+let PRICE_SORTED_LIST = LIST
+
+let PRICE_DB = {}
+import testPriceData from './test_prices'  // todo: debug!
 
 export class FewmanDB {
+    static async loadPrices() {
+        try {
+            const r = await axios.get(PRICE_API_URL)
+            PRICE_DB = r.data
+        } catch(e) {
+            console.error('fall back to test_prices.json' + e)
+            PRICE_DB = testPriceData
+        }
+
+        for (let k of Object.keys(data.db)) {
+            const fewman = data.db[k]
+            fewman.priceInfo = this.getPriceInfo(k)
+        }
+        this._sortPrice()
+
+        return PRICE_DB
+    }
+
+    static _sortPrice() {
+        function compare(x, y) {
+            if(x > y) {
+                return 1
+            } else if(x < y) {
+                return -1
+            } else {
+                return 0
+            }
+        }
+
+        PRICE_SORTED_LIST = [...LIST]
+        PRICE_SORTED_LIST.sort((a, b) => {
+            const pa = a.priceInfo
+            const pb = b.priceInfo
+
+            if (pa && pb) {
+                if(pa.buyNow && pb.buyNow) {
+                    return compare(pa.price, pb.price)
+                } else if(pa.buyNow) {
+                    return -1
+                } else if(pb.buyNow) {
+                    return 1
+                } else {
+                    return compare(pa.price, pb.price)
+                }
+            } else if (pa && !pb) {
+                return -1
+            } else if (!pa && pb) {
+                return 1
+            } else {
+                return compare(a.id, b.id)
+            }
+        })
+
+        console.log(LIST)
+    }
+
+    static getPriceInfo(id) {
+        return PRICE_DB.db[id]
+    }
+
     static findById(id) {
         return data.db[id]
     }
 
-    static asList() {
-        return LIST
+    static asList(sorted) {
+        return sorted ? PRICE_SORTED_LIST : LIST
     }
 
     static rarityByStar(fewman) {
