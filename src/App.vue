@@ -113,7 +113,7 @@ export default {
                     <strong>© 2021 FEW community.</strong> <br>
                         If you want, drop a FEW donations here:<br>
                     <small><i>0x44F7f2cE1A46Ca5C78D6C0701D192A613890c20E</i></small><br>
-                        <small>v.0.0.6</small>
+                        <small>v.0.1.1</small>
                     </span>
                     </div>
                 </div>
@@ -132,7 +132,7 @@ html, body {
     font-family: "Courier New", Courier, monospace;
 }
 
-p, span, code, li, strong {
+p, span, code, li, strong, small {
     font-family: "Courier New", Courier, monospace;
 }
 

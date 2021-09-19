@@ -18,6 +18,10 @@ let PRICE_SORTED_LIST = LIST
 let PRICE_DB = {}
 import testPriceData from './test_prices'  // todo: debug!
 
+export function nowTS() {
+    return Math.floor(Date.now() / 1000)
+}
+
 export class FewmanDB {
     static async loadPrices() {
         try {
@@ -28,10 +32,24 @@ export class FewmanDB {
             PRICE_DB = testPriceData
         }
 
+        const now = nowTS()
+        let priceBestTS = 0.0
+        let priceWorstTS = now
+
         for (let k of Object.keys(data.db)) {
             const fewman = data.db[k]
             fewman.priceInfo = this.getPriceInfo(k)
+
+            if(fewman.priceInfo) {
+                const lastTS = fewman.priceInfo.lastUpdateTS
+                console.log('last', lastTS, 'best = ', priceBestTS)
+                priceBestTS = Math.max(lastTS, priceBestTS)
+                priceWorstTS = Math.min(lastTS, priceWorstTS)
+            }
         }
+        this.priceBestTS = priceBestTS
+        this.priceWorstTS = priceWorstTS
+
         this._sortPrice()
 
         return PRICE_DB
@@ -71,8 +89,6 @@ export class FewmanDB {
                 return compare(a.id, b.id)
             }
         })
-
-        console.log(LIST)
     }
 
     static getPriceInfo(id) {

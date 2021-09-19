@@ -5,6 +5,8 @@ import mitt, {EVENTS} from "../helpers/mitt";
 import HelpModal from "./HelpModal.vue";
 import LoadView from "./LoadView.vue";
 
+import * as timeago from 'timeago.js';
+
 function isNormalInteger(str) {
     return /^\+?(0|[1-9]\d*)$/.test(str);
 }
@@ -26,6 +28,7 @@ export default {
             nextIdentToScan: 0,
             allLoaded: false,
             loading: false,
+            priceBestTS: 0,
         }
     },
     methods: {
@@ -44,7 +47,7 @@ export default {
         },
 
         appendQuery(term) {
-            if(this.query.includes(term)) {
+            if (this.query.includes(term)) {
                 this.query = this.query.replace(term, '').replace('  ', ' ').trim()
             } else {
                 this.query = (this.query + ' ' + term).trim()
@@ -90,9 +93,9 @@ export default {
                 for (let i = 0; i < words.length; ++i) {
                     const last = i === words.length - 1
                     const w = words[i]
-                    if(w === 'buy') {
+                    if (w === 'buy') {
                         buy = true
-                    } else if(w === 'price') {
+                    } else if (w === 'price') {
                         price = true
                     } else if (fems.has(w)) {
                         if (desiredGender) {
@@ -147,10 +150,10 @@ export default {
                         return true
                     }
 
-                    if(buy && (!item.priceInfo || !item.priceInfo.buyNow)) {
+                    if (buy && (!item.priceInfo || !item.priceInfo.buyNow)) {
                         return false
                     }
-                    if(price && (!item.priceInfo)) {
+                    if (price && (!item.priceInfo)) {
                         return false
                     }
 
@@ -221,18 +224,24 @@ export default {
             this.doSearch('more')
         },
         copyQuery() {
-            const url = location.protocol + '//' + location.host + location.pathname + '?q=' + encodeURI(this.query)
+            const q1 = this.query
+            const url = location.protocol + '//' + location.host + location.pathname + '?q=' + encodeURI(q1)
             navigator.clipboard.writeText(url)
+        },
+        restoreQuery() {
+            this.query = new URL(location.href).searchParams.get('q') || ''
         }
     },
     created() {
     },
     mounted() {
         this.loading = true
-        FewmanDB.loadPrices().then(() => {}).finally(() => {
-            this.query = new URL(location.href).searchParams.get('q') || ''
+        FewmanDB.loadPrices().then(() => {
+        }).finally(() => {
+            this.restoreQuery()
             this.doSearch()
             this.focusSearch()
+            this.priceBestTS = FewmanDB.priceBestTS
             mitt.on('load_more', () => {
                 this.loadMore()
             })
@@ -253,6 +262,9 @@ export default {
                 arr.push({value: `star ${i}`, caption: `⭐${i}`})
             }
             return arr
+        },
+        lastUpdate() {
+            return timeago.format(new Date(this.priceBestTS * 1000))
         }
     }
 }
@@ -263,9 +275,9 @@ export default {
     <HelpModal ref="help"></HelpModal>
 
     <div class="toolbox mb-5 p-3">
+        <div class="py-1"><small class="disabled">Last update: {{ lastUpdate }}</small></div>
         <div class="input-group">
             <LoadView v-if="loading"></LoadView>
-
             <input type="text"
                    tabindex="0"
                    ref="searchQuery"
