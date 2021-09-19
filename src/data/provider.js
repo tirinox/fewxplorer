@@ -42,7 +42,6 @@ export class FewmanDB {
 
             if(fewman.priceInfo) {
                 const lastTS = fewman.priceInfo.lastUpdateTS
-                console.log('last', lastTS, 'best = ', priceBestTS)
                 priceBestTS = Math.max(lastTS, priceBestTS)
                 priceWorstTS = Math.min(lastTS, priceWorstTS)
             }
