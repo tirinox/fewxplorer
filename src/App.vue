@@ -132,7 +132,7 @@ html, body {
     font-family: "Courier New", Courier, monospace;
 }
 
-p, span, code, li, strong, small {
+p, span, code, li, strong, small, div {
     font-family: "Courier New", Courier, monospace;
 }
 

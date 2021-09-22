@@ -263,8 +263,19 @@ export default {
             }
             return arr
         },
-        lastUpdate() {
-            return timeago.format(new Date(this.priceBestTS * 1000))
+        lastUpdateBest() {
+            if(this.priceBestTS) {
+                return timeago.format(new Date(this.priceBestTS * 1000))
+            } else {
+                return 'N/A'
+            }
+        },
+        lastUpdateWorst() {
+            if(this.priceWorstTS) {
+                return timeago.format(new Date(this.priceWorstTS * 1000))
+            } else {
+                return 'N/A'
+            }
         }
     }
 }
@@ -275,7 +286,12 @@ export default {
     <HelpModal ref="help"></HelpModal>
 
     <div class="toolbox mb-5 p-3">
-        <div class="py-1"><small class="disabled">Last update: {{ lastUpdate }}</small></div>
+        <div class="py-1">
+            <small class="disabled">Last update:
+                from {{ lastUpdateWorst }}
+                to {{ lastUpdateBest }}
+            </small>
+        </div>
         <div class="input-group">
             <LoadView v-if="loading"></LoadView>
             <input type="text"

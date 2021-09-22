@@ -154,7 +154,7 @@ export default {
         const priceData = FewmanDB.getPriceInfo(this.fewman.id)
         if(priceData) {
             this.price = priceData.price
-            this.buyNow = priceData.buyNow
+            this.buyNow = priceData.buyNow && priceData.m
         }
     }
 }
