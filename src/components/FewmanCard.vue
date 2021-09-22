@@ -68,7 +68,7 @@
                     </div>
                 </div>
                 <div class="total">
-                    {{ Math.round(rarity * 100.0) / 100.0 }} %
+                    {{ $filters.percentage(rarity, 3) }}
                 </div>
             </div>
             <div class="card-footer">
@@ -166,13 +166,7 @@ a {
     font-size: 12pt;
 }
 
-.female {
-    color: #F973D9;
-}
 
-.male {
-    color: #00BECA;
-}
 
 .gender {
     font-size: 8pt;
@@ -181,17 +175,6 @@ a {
 
 .card-header {
     padding-top: 20px;
-}
-
-.eth-text {
-    font-weight: bold;
-    font-size: 12pt;
-}
-
-.eth {
-    height: 12pt;
-    padding-bottom: 2pt;
-    padding-left: 2pt;
 }
 
 .col-head {

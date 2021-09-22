@@ -3,19 +3,71 @@ import axios from "axios";
 
 const PRICE_API_URL = 'https://fewmans.xyz/fewpi/opensea/'
 
+export const TRAIT_NAMES = {
+    'gender': 'Gender',
+    'hair': 'Hair',
+    'eyes': 'Eyes',
+    'body': 'Body',
+    'sex': 'Sexuality',
+    'intel': 'Intelligence',
+    'career': 'Career',
+    'curse': 'Curse',
+    'gift': "God's Gift",
+
+    't': 'Tiers',
+    'stars': 'Stars'
+}
+
+export const TRAIT_IDS = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+const TRAIT_LOCATIONS = TRAIT_IDS.map(x => x * 2)
+
 for (let k of Object.keys(data.db)) {
     const fewman = data.db[k]
     const p = fewman.p
-    const stars = [p[2], p[4], p[6], p[8], p[10], p[12], p[14], p[16]]
+    const stars = TRAIT_LOCATIONS.slice(1).map(l => p[l])
     fewman.tier = Math.max(...stars)
     fewman.stars = stars.reduce((a, x) => a + x, 0)
     fewman.gender = p[0]
 }
 
+
 const LIST = [...Object.values(data.db)]
+export const TOTAL_FEWMANS = LIST.length
+
 let PRICE_SORTED_LIST = LIST
 
-let PRICE_DB = {}
+function compare(x, y) {
+    if(x > y) {
+        return 1
+    } else if(x < y) {
+        return -1
+    } else {
+        return 0
+    }
+}
+
+
+
+function prepareRarityArr(dict, setStars) {
+    const rarityComparator = (a, b) => compare(-a[1], -b[1])
+    const arr = Object.entries(dict)
+    arr.sort(rarityComparator)
+    return arr.map(([name, count], i) => ([
+        name,
+        count,
+        100 * count / TOTAL_FEWMANS,
+        setStars ? i : 0
+    ]))
+}
+
+export const STAR_RARITY = prepareRarityArr(data.stars, true)
+// console.log('STAR_RARITY', STAR_RARITY)
+export const TIER_RARITY = prepareRarityArr(data.tiers, true)
+
+let PRICE_DB = {
+    db: {}
+}
+
 import testPriceData from './test_prices'  // todo: debug!
 
 export function nowTS() {
@@ -23,6 +75,30 @@ export function nowTS() {
 }
 
 export class FewmanDB {
+    static totalFewmans() {
+        return TOTAL_FEWMANS
+    }
+
+    static genderRarities() {
+        return prepareRarityArr(data.attr_rarity.gender)
+    }
+
+    static attrRarities(attr) {
+        if(attr === 'stars') {
+            return STAR_RARITY
+        } else if(attr === 't') {
+            return TIER_RARITY
+        } else if(attr === 'gender') {
+            return FewmanDB.genderRarities()
+        }
+
+        let arr = prepareRarityArr(data.attr_rarity[attr])
+        arr = arr.map(
+            ([name, count, p, _]) => ([name, count, p, +data.attrs[attr][name]])
+        )
+        return arr
+    }
+
     static async loadPrices() {
         try {
             const r = await axios.get(PRICE_API_URL)
@@ -55,16 +131,6 @@ export class FewmanDB {
     }
 
     static _sortPrice() {
-        function compare(x, y) {
-            if(x > y) {
-                return 1
-            } else if(x < y) {
-                return -1
-            } else {
-                return 0
-            }
-        }
-
         PRICE_SORTED_LIST = [...LIST]
         PRICE_SORTED_LIST.sort((a, b) => {
             const pa = a.priceInfo

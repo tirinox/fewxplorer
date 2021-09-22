@@ -29,6 +29,7 @@ export default {
             allLoaded: false,
             loading: false,
             priceBestTS: 0,
+            priceWorstTS: 0,
         }
     },
     methods: {

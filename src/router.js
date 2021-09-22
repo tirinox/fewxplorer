@@ -1,7 +1,7 @@
 import { createWebHistory, createRouter } from "vue-router";
 import Explorer from "./components/Explorer.vue";
-import Match from "./components/Match.vue";
-import Stats from "./components/Stats.vue";
+import Match from "./components/MatchPage.vue";
+import Rarity from "./components/RarityPage.vue";
 
 
 const routes = [
@@ -16,9 +16,9 @@ const routes = [
         component: Match,
     },
     {
-        path: "/stats",
-        name: "Stats",
-        component: Stats,
+        path: "/rarity",
+        name: 'Rarity',
+        component: Rarity,
     },
 ];
 

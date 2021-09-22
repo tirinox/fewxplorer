@@ -71,7 +71,7 @@ export default {
                             <router-link class="nav-link" to="/">Search</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link class="nav-link" to="/stats">Stats</router-link>
+                            <router-link class="nav-link" to="/rarity">Rarity</router-link>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -189,6 +189,14 @@ ul {
 
 .nav-link, .navbar-brand {
     font-family: 'Press Start 2P', sans-serif !important;
+}
+
+.female {
+    color: #F973D9;
+}
+
+.male {
+    color: #00BECA;
 }
 
 </style>
