@@ -4,7 +4,9 @@
             <div class="card-body">
                 <h4>{{ title }}</h4>
                 <div v-for="[name, count, percent, stars] of elements" class="telem">
-                    <span class="attr-name" :class="nameClass(name)">{{ name }}</span>
+                    <span class="attr-name">
+                        <a :href="link(name)" :class="nameClass(name)">{{ name }}</a>
+                    </span>
                     <img alt="star" src="/img/star.png" class="star" v-for="_ in stars">
 
                     <span class="float-end attr-percent">
@@ -31,10 +33,20 @@ export default {
     },
     methods: {
         nameClass(n) {
-            if(n === 'Female')
+            if (n === 'Female')
                 return 'female'
-            else if(n === 'Male')
+            else if (n === 'Male')
                 return 'male'
+        },
+        link(n) {
+            let q = n
+            if (this.name === 'stars') {
+                q = `stars ${n}`
+            } else if (this.name === 't') {
+                q = `tier ${n}`
+            }
+
+            return `/?q=${encodeURI(q)}`
         }
     },
     mounted() {
