@@ -1,147 +1,104 @@
 import data from '../data/db/fewmans.json'
 import axios from "axios";
+import {compare, nowTS} from "../helpers/util.js";
+import {decodePersonality} from "./personality";
 
 const PRICE_API_URL = 'https://fewmans.xyz/fewpi/opensea/'
+const TOKEN_ID_API_URL = 'https://fewmans.xyz/fewpi/tokenids/'
+const UPDATE_TIME_SECONDS = 30
 
-export const TRAIT_NAMES = {
-    'gender': 'Gender',
-    'hair': 'Hair',
-    'eyes': 'Eyes',
-    'body': 'Body',
-    'sex': 'Sexuality',
-    'intel': 'Intelligence',
-    'career': 'Career',
-    'curse': 'Curse',
-    'gift': "God's Gift",
-
-    't': 'Tiers',
-    'stars': 'Stars'
-}
-
-export const TRAIT_IDS = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-const TRAIT_LOCATIONS = TRAIT_IDS.map(x => x * 2)
-
-for (let k of Object.keys(data.db)) {
-    const fewman = data.db[k]
-    const p = fewman.p
-    const stars = TRAIT_LOCATIONS.slice(1).map(l => p[l])
-    fewman.tier = Math.max(...stars)
-    fewman.stars = stars.reduce((a, x) => a + x, 0)
-    fewman.gender = p[0]
-}
+const COUNTER_STARS = '_stars'
+const COUNTER_TIER = '_tier'
+const COUNTER_GENDER = '_gender'
 
 
-const LIST = [...Object.values(data.db)]
-export const TOTAL_FEWMANS = LIST.length
+export class FewmanDBv2 {
+    constructor() {
+        this.lastTimeLoaded = 0
 
-let PRICE_SORTED_LIST = LIST
+        this._idToFewman = {}
+        this._tokensAsList = []
+        this._tokensAsListSortedByPrice = []
+        this._counters = {}
 
-function compare(x, y) {
-    if(x > y) {
-        return 1
-    } else if(x < y) {
-        return -1
-    } else {
-        return 0
-    }
-}
-
-
-
-function prepareRarityArr(dict, setStars) {
-    const rarityComparator = (a, b) => compare(-a[1], -b[1])
-    const arr = Object.entries(dict)
-    arr.sort(rarityComparator)
-    return arr.map(([name, count], i) => ([
-        name,
-        count,
-        100 * count / TOTAL_FEWMANS,
-        setStars ? i : 0
-    ]))
-}
-
-export const STAR_RARITY = prepareRarityArr(data.stars, true)
-// console.log('STAR_RARITY', STAR_RARITY)
-export const TIER_RARITY = prepareRarityArr(data.tiers, true)
-
-let PRICE_DB = {
-    db: {}
-}
-
-import testPriceData from './test_prices'  // todo: debug!
-
-export function nowTS() {
-    return Math.floor(Date.now() / 1000)
-}
-
-export class FewmanDB {
-    static totalFewmans() {
-        return TOTAL_FEWMANS
+        this._priceDB = {}
+        this.priceBestTS = 0
+        this.priceWorstTS = 0
+        this.tokenIdLastTS = 0
+        this.totalTokenIds = 0
     }
 
-    static genderRarities() {
-        return prepareRarityArr(data.attr_rarity.gender)
+    findById(id) {
+        return this._idToFewman[id]
     }
 
-    static attrRarities(attr) {
-        if(attr === 'stars') {
-            return STAR_RARITY
-        } else if(attr === 't') {
-            return TIER_RARITY
-        } else if(attr === 'gender') {
-            return FewmanDB.genderRarities()
+    getPriceInfo(id) {
+        return this._priceDB[id]
+    }
+
+    rarityByStar(fewman) {
+        // const rarityTable = data.stars
+        // const r = rarityTable[fewman.stars] || 0.0
+        // return r / this._tokensAsList.length * 100.0
+    }
+
+    _incrementCounter(trait, value) {
+        let subCounter = this._counters[trait]
+        if(subCounter === undefined) {
+            subCounter = this._counters[trait] = {}
         }
 
-        let arr = prepareRarityArr(data.attr_rarity[attr])
-        arr = arr.map(
-            ([name, count, p, _]) => ([name, count, p, +data.attrs[attr][name]])
-        )
-        return arr
+        subCounter[value] = 1 + (subCounter[value] ?? 0)
     }
 
-    static async loadPrices() {
-        try {
-            const r = await axios.get(PRICE_API_URL)
-            PRICE_DB = r.data
-        } catch(e) {
-            console.error('fall back to test_prices.json' + e)
-            PRICE_DB = testPriceData
-        }
+    _parseTokenIds(tokenIdResults) {
+        const data = tokenIdResults.db
 
-        const now = nowTS()
-        let priceBestTS = 0.0
-        let priceWorstTS = now
+        this.tokenIdLastTS = +data.lastUpdatedTS
+        this.totalTokenIds = +data.total
+        this._counters = {}
 
-        for (let k of Object.keys(data.db)) {
-            const fewman = data.db[k]
-            fewman.priceInfo = this.getPriceInfo(k)
+        console.log(`_parseTokenIds: total = ${data.total}`)
 
-            if(fewman.priceInfo) {
-                const lastTS = fewman.priceInfo.lastUpdateTS
-                priceBestTS = Math.max(lastTS, priceBestTS)
-                priceWorstTS = Math.min(lastTS, priceWorstTS)
+        this._idToFewman = {}
+        this._tokensAsList = []
+        for(const [ident, personalityStr] of Object.values(data['ids'])) {
+            const fewman = decodePersonality(ident, personalityStr)
+            this._idToFewman[ident] = fewman
+            this._tokensAsList.push(fewman)
+
+            // update stats
+            this._incrementCounter(COUNTER_GENDER, fewman.gender)
+            this._incrementCounter(COUNTER_TIER, fewman.tier)
+            this._incrementCounter(COUNTER_STARS, fewman.stars)
+            for(const {key, value, stars} of fewman.traits) {
+                this._incrementCounter(key, value)
             }
         }
-        this.priceBestTS = priceBestTS
-        this.priceWorstTS = priceWorstTS
 
-        this._sortPrice()
-
-        return PRICE_DB
+        console.info('Counters:', this._counters)
     }
 
-    static _sortPrice() {
-        PRICE_SORTED_LIST = [...LIST]
-        PRICE_SORTED_LIST.sort((a, b) => {
+    get tokens() {
+        return this._tokensAsList
+    }
+
+    get tokensPriceSorted() {
+        return this._tokensAsListSortedByPrice
+    }
+
+    _sortPrice() {
+        this._tokensAsListSortedByPrice = [...this.tokens]
+        this._tokensAsListSortedByPrice.sort((a, b) => {
             const pa = a.priceInfo
             const pb = b.priceInfo
 
             if (pa && pb) {
-                if(pa.buyNow && pb.buyNow) {
+                if (pa.buyNow && pb.buyNow) {
                     return compare(pa.price, pb.price)
-                } else if(pa.buyNow) {
+                } else if (pa.buyNow) {
                     return -1
-                } else if(pb.buyNow) {
+                } else if (pb.buyNow) {
                     return 1
                 } else {
                     return compare(pa.price, pb.price)
@@ -156,25 +113,75 @@ export class FewmanDB {
         })
     }
 
-    static getPriceInfo(id) {
-        return PRICE_DB.db[id]
+    _parsePriceData(priceResults) {
+        const now = nowTS()
+        let priceBestTS = 0.0
+        let priceWorstTS = now
+
+        this._priceDB = priceResults.db
+
+        for (let k of Object.keys(this._priceDB)) {
+            const fewman = this.findById(k)
+
+            fewman.priceInfo = this.getPriceInfo(k)
+            if (fewman.priceInfo) {
+                const lastTS = fewman.priceInfo.lastUpdateTS
+                priceBestTS = Math.max(lastTS, priceBestTS)
+                priceWorstTS = Math.min(lastTS, priceWorstTS)
+            }
+        }
+        this.priceBestTS = priceBestTS
+        this.priceWorstTS = priceWorstTS
+
+        this._sortPrice()
     }
 
-    static findById(id) {
-        return data.db[id]
+    async _loadAll() {
+        console.log('Loading data from API...')
+        const [priceResults, tokenIdResults] = await Promise.all([
+            axios.get(PRICE_API_URL),
+            axios.get(TOKEN_ID_API_URL)
+        ])
+        this._parseTokenIds(tokenIdResults.data)
+        this._parsePriceData(priceResults.data)
     }
 
-    static asList(sorted) {
-        return sorted ? PRICE_SORTED_LIST : LIST
+    async updateIfNeeded() {
+        if (nowTS() - this.lastTimeLoaded > UPDATE_TIME_SECONDS) {
+            await this._loadAll()
+            this.lastTimeLoaded = nowTS()
+        }
+        // try {
+        //     if (nowTS() - this.lastTimeLoaded > UPDATE_TIME_SECONDS) {
+        //         await this._loadAll()
+        //         this.lastTimeLoaded = nowTS()
+        //     }
+        //     return true
+        // } catch (e) {
+        //     return false
+        // }
     }
 
-    static rarityByStar(fewman) {
-        const rarityTable = data.stars
-        const r = rarityTable[fewman.stars] || 0.0
-        return r / LIST.length * 100.0
+    // ---- matching ----
+
+    bestMatch(fewman, maxStars) {
+        maxStars = maxStars || 9999
+
+        const results = []
+        const candidates = this.tokens.filter(f => f.gender !== fewman.gender && f.stars <= maxStars)  // only f + m
+        for (const candidate of candidates) {
+            if (candidate.id !== fewman.id) {
+                const result = this.breed(candidate, fewman)
+                if (result) {
+                    results.push({candidate, result})
+                }
+            }
+        }
+        results.sort((a, b) => b.result.stars - a.result.stars)
+        return results.slice(0, 50)
     }
 
-    static breed(f1, f2) {
+    breed(f1, f2) {
         if (f1.gender === f2.gender) {
             return null
         }
@@ -213,20 +220,71 @@ export class FewmanDB {
             gender: Math.random() > 0.5 ? f1.gender : f2.gender
         }
     }
-
-    static bestMatch(fewman, maxStars) {
-        maxStars = maxStars || 9999
-        const results = []
-        const candidates = LIST.filter(f => f.gender !== fewman.gender && f.stars <= maxStars)  // only f + m
-        for (const candidate of candidates) {
-            if(candidate.id !== fewman.id) {
-                const result = this.breed(candidate, fewman)
-                if(result) {
-                    results.push({candidate, result})
-                }
-            }
-        }
-        results.sort((a, b) => b.result.stars - a.result.stars)
-        return results.slice(0, 50)
-    }
 }
+
+export const fewmanDB = new FewmanDBv2()
+
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+//
+// export const TRAIT_NAMES = {
+//     'gender': 'Gender',
+//     'hair': 'Hair',
+//     'eyes': 'Eyes',
+//     'body': 'Body',
+//     'sex': 'Sexuality',
+//     'intel': 'Intelligence',
+//     'career': 'Career',
+//     'curse': 'Curse',
+//     'gift': "God's Gift",
+//
+//     't': 'Tiers',
+//     'stars': 'Stars'
+// }
+//
+
+// function prepareRarityArr(dict, setStars) {
+//     const rarityComparator = (a, b) => compare(-a[1], -b[1])
+//     const arr = Object.entries(dict)
+//     arr.sort(rarityComparator)
+//     return arr.map(([name, count], i) => ([
+//         name,
+//         count,
+//         100 * count / TOTAL_FEWMANS,
+//         setStars ? i : 0
+//     ]))
+// }
+//
+// export const STAR_RARITY = prepareRarityArr(data.stars, true)
+// // console.log('STAR_RARITY', STAR_RARITY)
+// export const TIER_RARITY = prepareRarityArr(data.tiers, true)
+
+//
+//
+// export class FewmanDB {
+//     static totalFewmans() {
+//         return TOTAL_FEWMANS
+//     }
+//
+//     static genderRarities() {
+//         return prepareRarityArr(data.attr_rarity.gender)
+//     }
+//
+//     static attrRarities(attr) {
+//         if (attr === 'stars') {
+//             return STAR_RARITY
+//         } else if (attr === 't') {
+//             return TIER_RARITY
+//         } else if (attr === 'gender') {
+//             return FewmanDB.genderRarities()
+//         }
+//
+//         let arr = prepareRarityArr(data.attr_rarity[attr])
+//         arr = arr.map(
+//             ([name, count, p, _]) => ([name, count, p, +data.attrs[attr][name]])
+//         )
+//         return arr
+//     }
+//
+// }

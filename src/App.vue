@@ -83,7 +83,6 @@ export default {
                                 <li><a class="dropdown-item" :href="linkContract" target="_blank">Contract</a></li>
                                 <li><a class="dropdown-item" :href="linkHolders" target="_blank">Holders</a></li>
                                 <li><a class="dropdown-item" href="https://etherscan.io/token/0x60e46a4dd91d10506d8efa2caa266e7191fe7ea8" target="_blank">FEWGold</a></li>
-<!--                                <li><hr class="dropdown-divider"></li>-->
                             </ul>
                         </li>
 
