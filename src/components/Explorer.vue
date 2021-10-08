@@ -3,11 +3,7 @@ import {fewmanDB} from '../data/provider'
 import FewmanCard from "./FewmanCard.vue";
 import mitt, {EVENTS} from "../helpers/mitt";
 import HelpModal from "./HelpModal.vue";
-
-
-function isNormalInteger(str) {
-    return /^\+?(0|[1-9]\d*)$/.test(str);
-}
+import {isNormalInteger} from "../helpers/util";
 
 const BATCH_SIZE = 42
 const MAX_TIER = 7
@@ -25,6 +21,7 @@ export default {
             isError: false,
             nextIdentToScan: 0,
             allLoaded: false,
+            loaded: false,
             priceBestTS: 0,
             priceWorstTS: 0,
             lastTokenUpdateTS: 0,
@@ -85,7 +82,6 @@ export default {
                 const fems = new Set(['f', 'fe', 'fem', 'female', 'femal', 'woman', 'girl'])
                 const males = new Set(['m', 'ma', 'mal', 'male', 'man', 'boy'])
 
-                // todo: like word handle!
                 let buy = false
                 let price = false
 
@@ -138,10 +134,11 @@ export default {
                     }
                 }
 
-                console.log(`search gender = ${desiredGender},
-                tiers = ${Array.from(desiredTiers).join(', ')},
-                stars = ${Array.from(desiredStars).join(', ')},
-                words = ${attribWords}`)
+                console.log(`Search:
+                gender = "${desiredGender}",
+                tiers = [${Array.from(desiredTiers).join(', ')}],
+                stars = [${Array.from(desiredStars).join(', ')}],
+                words = "${attribWords}"`)
 
                 this.filterWords = attribWords
 
@@ -218,7 +215,9 @@ export default {
             }
         },
         focusSearch() {
-            this.$refs.searchQuery.focus();
+            if(this.$refs.searchQuery) {
+                this.$refs.searchQuery.focus();
+            }
         },
         loadMore() {
             this.doSearch('more')
@@ -243,6 +242,7 @@ export default {
             this.totalTokens = fewmanDB.totalFewmans
             this.lastTokenUpdateTS = fewmanDB.tokenIdLastTS
             this.priceBestTS = fewmanDB.priceBestTS
+            this.loaded = true
 
             mitt.on('load_more', () => {
                 this.loadMore()
@@ -276,12 +276,12 @@ export default {
         <div class="py-1">
             <small class="disabled">
                 Last price update: <em>{{ $filters.agoTS(priceBestTS) }}</em>,
-                last token list update: <em>{{ $filters.agoTS(lastTokenUpdateTS) }}</em>,
+                token list last update: <em>{{ $filters.agoTS(lastTokenUpdateTS) }}</em>,
                 total tokens: <em>{{ totalTokens }}</em>
             </small>
         </div>
-        <div class="input-group">
 
+        <div class="input-group">
             <input type="text"
                    tabindex="0"
                    ref="searchQuery"
@@ -306,9 +306,9 @@ export default {
         </div>
     </div>
 
-    <div class="row m-1">
-        <FewmanCard :fewman="v" v-for="v in results" :key="v.id" v-if="!loading"></FewmanCard>
-        <div class="text-center" v-if="!results.length && !loading">
+    <div class="row m-1" v-if="loaded">
+        <FewmanCard :fewman="v" v-for="v in results" :key="v.id"></FewmanCard>
+        <div class="text-center" v-if="!results.length">
             <h2 class="m-4">No FEWMANS like this</h2>
         </div>
     </div>

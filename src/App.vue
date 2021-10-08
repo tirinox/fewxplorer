@@ -63,7 +63,7 @@ export default {
 </script>
 
 <template>
-    <div class="container-fluid min-vh-100">
+    <div class="container-fluid min-height-full">
         <LoadView v-if="loading"></LoadView>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
@@ -71,7 +71,9 @@ export default {
                     <img class="img-fluid logo" src="/img/logo-few.png" alt="Project Logo">
                     FEWxplorer
                 </router-link>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -83,15 +85,20 @@ export default {
                             <router-link class="nav-link" to="/rarity">Rarity</router-link>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
                                 Links
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="https://www.fewmans.com/" target="_blank">Main site</a></li>
-                                <li><a class="dropdown-item" href="https://opensea.io/collection/fewmans" target="_blank">Open Sea</a></li>
+                                <li><a class="dropdown-item" href="https://www.fewmans.com/" target="_blank">Main
+                                    site</a></li>
+                                <li><a class="dropdown-item" href="https://opensea.io/collection/fewmans"
+                                       target="_blank">Open Sea</a></li>
                                 <li><a class="dropdown-item" :href="linkContract" target="_blank">Contract</a></li>
                                 <li><a class="dropdown-item" :href="linkHolders" target="_blank">Holders</a></li>
-                                <li><a class="dropdown-item" href="https://etherscan.io/token/0x60e46a4dd91d10506d8efa2caa266e7191fe7ea8" target="_blank">FEWGold</a></li>
+                                <li><a class="dropdown-item"
+                                       href="https://etherscan.io/token/0x60e46a4dd91d10506d8efa2caa266e7191fe7ea8"
+                                       target="_blank">FEWGold</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -109,7 +116,7 @@ export default {
             <span id="top-text">TOP</span>
         </button>
 
-        <router-view />
+        <router-view/>
 
         <footer class="page-footer font-small blue pt-4 pb-5">
             <div class="container-fluid text-center text-md-left">
@@ -132,6 +139,12 @@ export default {
 
 html, body {
     font-family: 'Press Start 2P', sans-serif;
+    height: 100%;
+}
+
+.min-height-full {
+    height: auto !important; /* real browsers */
+    min-height: 100%; /* real browsers */
 }
 
 .navbar a {

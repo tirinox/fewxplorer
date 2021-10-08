@@ -64,7 +64,8 @@ export class FewmanDBv2 {
         //     await this._loadAll()
         //     this.lastTimeLoaded = nowTS()
         // }
-        // return true
+        // return true  // fixme: debug
+
         try {
             if (!this._tokensAsList.length || nowTS() - this.lastTimeLoaded > UPDATE_TIME_SECONDS) {
                 await this._loadAll()
@@ -127,7 +128,8 @@ export class FewmanDBv2 {
 
         return {
             id: -1, p: newP, tier, stars,
-            gender: Math.random() > 0.5 ? f1.gender : f2.gender
+            gender: Math.random() > 0.5 ? f1.gender : f2.gender,
+            traits: {}  // todo!!! breed!!!
         }
     }
 

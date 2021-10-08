@@ -12,6 +12,10 @@ export function agoTS(value) {
     }
 }
 
+export function isNormalInteger(str) {
+    return /^\+?(0|[1-9]\d*)$/.test(str);
+}
+
 export function percentage(value, decimals) {
     if (!value) {
         value = 0;

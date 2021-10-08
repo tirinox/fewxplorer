@@ -100,7 +100,6 @@ export const VALUE_TO_STARS = {
     5: 0
 }
 
-
 function makeTraitStarDict() {
     const dic = {}
     for(const item of Object.values(TRAIT_MAP)) {
@@ -146,10 +145,11 @@ export function decodePersonality(tokenId, traitArr) {
         totalStars += stars
         tier = Math.max(tier, stars)
 
-        fewman.traits[traitDesc.name] = [traitDesc.values[+traitValue], stars]
+        const traitValueStr = traitDesc.values[+traitValue]
+        fewman.traits[traitDesc.name] = [traitValueStr, stars]
         ++index
 
-        fewman.p.push(traitDesc.name, stars)
+        fewman.p.push(traitValueStr, stars)
     }
     fewman.stars = totalStars
     fewman.tier = tier
