@@ -1,6 +1,6 @@
 <script>
 
-import {fewmanDB} from "./data/provider.js";
+import {fewmanDB} from "./data/provider";
 
 export default {
     name: "App",

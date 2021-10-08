@@ -1,5 +1,15 @@
+import * as timeago from "timeago.js";
+
 export function nowTS() {
     return Math.floor(Date.now() / 1000)
+}
+
+export function agoTS(value) {
+    if(value) {
+        return timeago.format(new Date(value * 1000))
+    } else {
+        return 'N/A'
+    }
 }
 
 export function percentage(value, decimals) {

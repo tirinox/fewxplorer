@@ -1,11 +1,9 @@
 <script>
-import {FewmanDB} from '../data/provider'
+import {fewmanDB} from '../data/provider'
 import FewmanCard from "./FewmanCard.vue";
 import mitt, {EVENTS} from "../helpers/mitt";
 import HelpModal from "./HelpModal.vue";
-import LoadView from "./LoadView.vue";
 
-import * as timeago from 'timeago.js';
 
 function isNormalInteger(str) {
     return /^\+?(0|[1-9]\d*)$/.test(str);
@@ -15,7 +13,7 @@ const BATCH_SIZE = 42
 const MAX_TIER = 7
 
 export default {
-    components: {LoadView, HelpModal, FewmanCard},
+    components: {HelpModal, FewmanCard},
     props: {
         msg: String
     },
@@ -27,9 +25,10 @@ export default {
             isError: false,
             nextIdentToScan: 0,
             allLoaded: false,
-            loading: false,
             priceBestTS: 0,
             priceWorstTS: 0,
+            lastTokenUpdateTS: 0,
+            totalTokens: 0
         }
     },
     methods: {
@@ -73,7 +72,7 @@ export default {
                 this.help()
                 return
             } else if (isNormalInteger(q)) {
-                this.results = [FewmanDB.findById(q)]
+                this.results = [fewmanDB.findById(q)]
                 this.allLoaded = true
             } else {
                 let words = q.match(/\b(\w+)\b/g) || []
@@ -193,7 +192,7 @@ export default {
                 }
 
                 let thisBatch = []
-                const data = FewmanDB.asList(buy)
+                const data = buy ? fewmanDB.tokensPriceSorted : fewmanDB.tokens;
                 for (let i = this.nextIdentToScan; i < data.length; ++i) {
                     this.nextIdentToScan = i + 1
                     const el = data[i]
@@ -231,22 +230,23 @@ export default {
         },
         restoreQuery() {
             this.query = new URL(location.href).searchParams.get('q') || ''
-        }
+        },
     },
     created() {
     },
     mounted() {
-        this.loading = true
-        FewmanDB.loadPrices().then(() => {
-        }).finally(() => {
+        mitt.on('data_loaded', () => {
             this.restoreQuery()
             this.doSearch()
             this.focusSearch()
-            this.priceBestTS = FewmanDB.priceBestTS
+
+            this.totalTokens = fewmanDB.totalFewmans
+            this.lastTokenUpdateTS = fewmanDB.tokenIdLastTS
+            this.priceBestTS = fewmanDB.priceBestTS
+
             mitt.on('load_more', () => {
                 this.loadMore()
             })
-            this.loading = false
         })
     },
     computed: {
@@ -264,20 +264,6 @@ export default {
             }
             return arr
         },
-        lastUpdateBest() {
-            if(this.priceBestTS) {
-                return timeago.format(new Date(this.priceBestTS * 1000))
-            } else {
-                return 'N/A'
-            }
-        },
-        lastUpdateWorst() {
-            if(this.priceWorstTS) {
-                return timeago.format(new Date(this.priceWorstTS * 1000))
-            } else {
-                return 'N/A'
-            }
-        }
     }
 }
 
@@ -288,13 +274,14 @@ export default {
 
     <div class="toolbox mb-5 p-3">
         <div class="py-1">
-            <small class="disabled">Last update:
-                from {{ lastUpdateWorst }}
-                to {{ lastUpdateBest }}
+            <small class="disabled">
+                Last price update: <em>{{ $filters.agoTS(priceBestTS) }}</em>,
+                last token list update: <em>{{ $filters.agoTS(lastTokenUpdateTS) }}</em>,
+                total tokens: <em>{{ totalTokens }}</em>
             </small>
         </div>
         <div class="input-group">
-            <LoadView v-if="loading"></LoadView>
+
             <input type="text"
                    tabindex="0"
                    ref="searchQuery"
@@ -348,8 +335,6 @@ button, input {
     width: 16px;
     padding: 0;
     margin: 0;
-    /*padding: 2px;*/
 }
-
 
 </style>

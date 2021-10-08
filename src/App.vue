@@ -2,19 +2,21 @@
 import Explorer from './components/Explorer.vue'
 import mitt, {EVENTS} from "./helpers/mitt";
 import {FEWMANS_CONTRACT} from "./data/opensea";
+import {fewmanDB} from "./data/provider";
+import LoadView from "./components/LoadView.vue";
 
 export default {
     name: "App",
-    components: {Explorer},
+    components: {Explorer, LoadView},
     data() {
         return {
             scTimer: 0,
             scY: 0,
+            loading: false,
         }
     },
     methods: {
         handleScroll: function () {
-            const listElm = document
             if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight - 2) {
                 mitt.emit("load_more")
             }
@@ -46,6 +48,12 @@ export default {
     mounted() {
         window.addEventListener('scroll', this.handleScroll);
         mitt.on(EVENTS.SCROLL_TOP, this.toTop)
+
+        this.loading = true
+        return fewmanDB.updateIfNeeded().finally(() => {
+            this.loading = false
+            mitt.emit('data_loaded')
+        })
     },
     onUnmounted() {
         window.removeEventListener("scroll", this.handleScroll)
@@ -56,6 +64,7 @@ export default {
 
 <template>
     <div class="container-fluid min-vh-100">
+        <LoadView v-if="loading"></LoadView>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
                 <router-link class="navbar-brand" to="/">
@@ -85,9 +94,7 @@ export default {
                                 <li><a class="dropdown-item" href="https://etherscan.io/token/0x60e46a4dd91d10506d8efa2caa266e7191fe7ea8" target="_blank">FEWGold</a></li>
                             </ul>
                         </li>
-
                     </ul>
-
                 </div>
             </div>
         </nav>
@@ -112,7 +119,7 @@ export default {
                     <strong>© 2021 FEW community.</strong> <br>
                         If you want, drop a FEW donations here:<br>
                     <small><i>0x44F7f2cE1A46Ca5C78D6C0701D192A613890c20E</i></small><br>
-                        <small>v.0.1.1</small>
+                        <small>v.0.2.0</small>
                     </span>
                     </div>
                 </div>

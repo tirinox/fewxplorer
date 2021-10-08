@@ -1,7 +1,7 @@
 <script>
 
 import FewmanCard from "./FewmanCard.vue";
-import {FewmanDB} from "../data/provider";
+import {fewmanDB} from "../data/provider";
 import mitt, {EVENTS} from "../helpers/mitt";
 import StarSelector from "./StarSelector.vue";
 
@@ -28,17 +28,17 @@ export default {
     },
     computed: {
         results() {
-            const fewman = FewmanDB.findById(this.subjectId)
+            const fewman = fewmanDB.findById(this.subjectId)
             if (!fewman) {
                 return []
             }
-            return FewmanDB.bestMatch(fewman, this.maxStars)
+            return fewmanDB.bestMatch(fewman, this.maxStars)
         },
         subjectId() {
             return this.$route.params.token_id
         },
         subjectFewman() {
-            return FewmanDB.findById(this.subjectId)
+            return fewmanDB.findById(this.subjectId)
         }
     }
 }

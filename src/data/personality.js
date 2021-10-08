@@ -83,20 +83,13 @@ export const TRAIT_MAP = {
             '1': 'Luck',  // **
             '2': 'Longevity',  // *
             '3': 'Empathy',
-            '4': 'Not gifted',
+            '4': 'Not Gifted',
             '5': 'Leadership',
         }
     },
 }
 
-export function genderByTokenId(tokenId) {
-    tokenId = +tokenId
-    if (tokenId % 2 === 0) {
-        return 'Female'
-    } else {
-        return 'Male'
-    }
-}
+export const TRAIT_NAMES = Object.keys(TRAIT_MAP).sort().map((id => TRAIT_MAP[id].name))
 
 export const VALUE_TO_STARS = {
     0: 3,
@@ -107,17 +100,45 @@ export const VALUE_TO_STARS = {
     5: 0
 }
 
+
+function makeTraitStarDict() {
+    const dic = {}
+    for(const item of Object.values(TRAIT_MAP)) {
+        const subDic = dic[item.name] = {}
+        for(const [code, string] of Object.entries(item.values)) {
+            subDic[string] = VALUE_TO_STARS[code]
+        }
+    }
+    return dic
+}
+
+export const TRAIT_STARS_DIC = makeTraitStarDict()
+
+
+export function genderByTokenId(tokenId) {
+    tokenId = +tokenId
+    if (tokenId % 2 === 0) {
+        return 'Female'
+    } else {
+        return 'Male'
+    }
+}
+
 export function decodePersonality(tokenId, traitArr) {
-    if(traitArr instanceof String) {
+    if (traitArr instanceof String) {
         traitArr = traitArr.split('')
     }
 
     let fewman = {
-        traits: []
+        traits: {},
+        gender: genderByTokenId(tokenId),
+        id: tokenId,
+        p: []
     }
     let index = 0
     let totalStars = 0
     let tier = 0
+    fewman.p.push(fewman.gender)
     for (const traitValue of traitArr) {
         const traitDesc = TRAIT_MAP[index]
 
@@ -125,16 +146,12 @@ export function decodePersonality(tokenId, traitArr) {
         totalStars += stars
         tier = Math.max(tier, stars)
 
-        fewman.traits.push({
-            key: traitDesc.name,
-            value: traitDesc.values[+traitValue],
-            stars
-        })
+        fewman.traits[traitDesc.name] = [traitDesc.values[+traitValue], stars]
         ++index
+
+        fewman.p.push(traitDesc.name, stars)
     }
-    fewman.gender = genderByTokenId(tokenId)
     fewman.stars = totalStars
     fewman.tier = tier
-    fewman.tokenId = tokenId
     return fewman
 }

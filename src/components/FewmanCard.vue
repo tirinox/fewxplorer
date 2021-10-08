@@ -42,8 +42,8 @@
                         <div class="py-1">
                             <span class="attr-head">{{ leftNames[i] }}</span><br>
                             <span class="attr-val">
-                                {{ paramName(i) }}
-                                <img alt="star" src="/img/star.png" class="star" v-for="_ in paramStars(i)">
+                                {{ paramName(leftNames[i]) }}
+                                <img alt="star" src="/img/star.png" class="star" v-for="_ in paramStars(leftNames[i])">
                             </span>
                         </div>
                     </div>
@@ -51,8 +51,8 @@
                         <div class="py-1">
                             <span class="attr-head">{{ rightNames[i] }}</span><br>
                             <span class="attr-val">
-                                {{ paramName(i + 4) }}
-                                <img alt="star" src="/img/star.png" class="star" v-for="_ in paramStars(i + 4)">
+                                {{ paramName(rightNames[i]) }}
+                                <img alt="star" src="/img/star.png" class="star" v-for="_ in paramStars(rightNames[i])">
                             </span>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
 
 <script>
 
-import {FewmanDB} from "../data/provider";
+import {fewmanDB} from "../data/provider";
 import {FEWMANS_CONTRACT} from "../data/opensea";
 
 const LEFT_NAMES = [
@@ -121,7 +121,7 @@ export default {
     },
     computed: {
         isFem() {
-            return this.sourceFewman.p[0] === 'Female'
+            return this.sourceFewman.gender === 'Female'
         },
         leftNames() {
             return LEFT_NAMES
@@ -130,7 +130,7 @@ export default {
             return RIGHT_NAMES
         },
         rarity() {
-            return FewmanDB.rarityByStar(this.sourceFewman)
+            return fewmanDB.rarityByStar(this.sourceFewman)
         },
         sourceFewman() {
             return this.isChildNow ? this.child : this.fewman
@@ -143,15 +143,15 @@ export default {
         }
     },
     methods: {
-        paramName(i) {
-            return this.sourceFewman.p[i * 2 + 1]
+        paramName(n) {
+            return this.sourceFewman.traits[n][0]
         },
-        paramStars(i) {
-            return this.sourceFewman.p[i * 2 + 2]
+        paramStars(n) {
+            return this.sourceFewman.traits[n][1]
         },
     },
     mounted() {
-        const priceData = FewmanDB.getPriceInfo(this.fewman.id)
+        const priceData = fewmanDB.getPriceInfo(this.fewman.id)
         if(priceData) {
             this.price = priceData.price
             this.buyNow = priceData.buyNow && priceData.m
@@ -165,8 +165,6 @@ export default {
 a {
     font-size: 12pt;
 }
-
-
 
 .gender {
     font-size: 8pt;

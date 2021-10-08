@@ -3,7 +3,7 @@
         <div class="card">
             <div class="card-body">
                 <h4>{{ title }}</h4>
-                <div v-for="[name, count, percent, stars] of elements" class="telem">
+                <div v-for="{name, count, percent, stars} of elements" class="telem">
                     <span class="attr-name">
                         <a :href="link(name)" :class="nameClass(name)">{{ name }}</a>
                     </span>
@@ -20,7 +20,11 @@
 </template>
 
 <script>
-import {FewmanDB, TRAIT_NAMES} from "../data/provider";
+
+import {COUNTER_GENDER, COUNTER_STARS, COUNTER_TIER, fewmanDB} from "../data/provider";
+import mitt from "../helpers/mitt";
+import {TRAIT_STARS_DIC} from "../data/personality";
+import {compare} from "../helpers/util";
 
 export default {
     name: "RarityCard",
@@ -40,9 +44,9 @@ export default {
         },
         link(n) {
             let q = n
-            if (this.name === 'stars') {
+            if (this.name === COUNTER_STARS) {
                 q = `stars ${n}`
-            } else if (this.name === 't') {
+            } else if (this.name === COUNTER_TIER) {
                 q = `tier ${n}`
             }
 
@@ -50,8 +54,37 @@ export default {
         }
     },
     mounted() {
-        this.title = TRAIT_NAMES[this.name]
-        this.elements = FewmanDB.attrRarities(this.name)
+        mitt.on('data_loaded', () => {
+            const traitName = this.name
+            const dic = fewmanDB._counters[traitName]
+            const traitStartDic = TRAIT_STARS_DIC[traitName]
+            const total = fewmanDB.totalFewmans
+
+            if(traitName === COUNTER_GENDER) {
+                this.title = 'Gender'
+            } else if(traitName === COUNTER_STARS) {
+                this.title = 'Total stars'
+            } else if(traitName === COUNTER_TIER) {
+                this.title = 'Tier'
+            } else {
+                this.title = traitName
+            }
+
+            const elements = Object.entries(dic).map(([name, count]) => {
+                let stars = traitStartDic ? traitStartDic[name] : 0
+                if(traitName === COUNTER_TIER || traitName === COUNTER_STARS) {
+                    stars = +name
+                    name = stars
+                }
+                return {
+                    name, count, stars,
+                    percent: (count / total) * 100.0
+                }
+                // [name, count, percent, stars]
+            })
+            elements.sort((a, b) => compare(a.count, b.count))
+            this.elements = elements
+        })
     }
 }
 
