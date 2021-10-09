@@ -69,7 +69,8 @@ export default {
                 this.help()
                 return
             } else if (isNormalInteger(q)) {
-                this.results = [fewmanDB.findById(q)]
+                const fewman = fewmanDB.findById(q)
+                this.results = fewman ? [fewman] : []
                 this.allLoaded = true
             } else {
                 let words = q.match(/\b(\w+)\b/g) || []
@@ -88,7 +89,7 @@ export default {
                 let attribWords = []
                 for (let i = 0; i < words.length; ++i) {
                     const last = i === words.length - 1
-                    const w = words[i]
+                    const  w = words[i]
                     if (w === 'buy') {
                         buy = true
                     } else if (w === 'price') {

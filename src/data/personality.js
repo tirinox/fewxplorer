@@ -155,3 +155,50 @@ export function decodePersonality(tokenId, traitArr) {
     fewman.tier = tier
     return fewman
 }
+
+
+export function breed(f1, f2) {
+    if (f1.gender === f2.gender) {
+        return null
+    }
+
+    const newP = [f1.gender]
+    let tier = 0
+    let stars = 0
+    const traits = {}
+    const totalTraits = TRAIT_NAMES.length
+    for (let i = 0; i < totalTraits; i++) {
+        const pos = i * 2 + 1
+        const s1 = f1.p[pos + 1]
+        const s2 = f2.p[pos + 1]
+        const a1 = f1.p[pos]
+        const a2 = f2.p[pos]
+        let newA = a1
+        let newS = 0
+        if (a1 === a2) {
+            // same Attr
+            if (s1 === 0) {
+                newS = 1
+            } else {
+                newS = s1 + s2
+            }
+        } else {
+            // different attrs
+            newS = Math.max(s1, s2)
+            newA = newS === s1 ? a1 : a2
+        }
+        tier = Math.max(tier, newS)
+        stars += newS
+        newP.push(...[newA, newS])
+        traits[TRAIT_NAMES[i]] = [newA, newS]
+    }
+
+    return {
+        id: f1.id,
+        tier,
+        stars,
+        p: newP,
+        gender: (Math.random() > 0.5 ? f1.gender : f2.gender),
+        traits
+    }
+}

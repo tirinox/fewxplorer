@@ -12,7 +12,8 @@ export default {
     },
     data() {
         return {
-            maxStars: 10
+            maxStars: 10,
+            gotData: false
         }
     },
     methods: {
@@ -25,9 +26,16 @@ export default {
     },
     mounted() {
         mitt.emit(EVENTS.SCROLL_TOP)
+        mitt.on('data_loaded', () => {
+            this.gotData = true
+        })
     },
     computed: {
         results() {
+            if(!this.gotData) {
+                return []
+            }
+
             const fewman = fewmanDB.findById(this.subjectId)
             if (!fewman) {
                 return []
@@ -47,7 +55,7 @@ export default {
 
 <template>
     <div class="row m-1">
-        <FewmanCard :fewman="subjectFewman"></FewmanCard>
+        <FewmanCard :fewman="subjectFewman" v-if="gotData"></FewmanCard>
         <div class="col-6">
             <img class="img-fluid float-start p-4" src="/img/half-heart-cr.png" alt="Half of a heart">
             <h1 class="d-inline">Best matches</h1>

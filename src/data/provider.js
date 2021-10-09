@@ -1,10 +1,12 @@
 import axios from "axios";
-import {compare, nowTS} from "../helpers/util.js";
-import {decodePersonality} from "./personality";
+import {agoTS, compare, nowTS} from "../helpers/util.js";
+import {breed, decodePersonality} from "./personality";
 
 const PRICE_API_URL = 'https://fewmans.xyz/fewpi/opensea/'
 const TOKEN_ID_API_URL = 'https://fewmans.xyz/fewpi/tokenids/'
 const UPDATE_TIME_SECONDS = 30
+
+const MAX_MATCHES = 50
 
 export const COUNTER_STARS = '_stars'
 export const COUNTER_TIER = '_tier'
@@ -59,6 +61,10 @@ export class FewmanDBv2 {
         return (n ?? 0) / this.totalFewmans * 100.0
     }
 
+    get isItTimeToUpdate() {
+        return nowTS() - this.lastTimeLoaded > UPDATE_TIME_SECONDS
+    }
+
     async updateIfNeeded() {
         // if (nowTS() - this.lastTimeLoaded > UPDATE_TIME_SECONDS) {
         //     await this._loadAll()
@@ -67,9 +73,11 @@ export class FewmanDBv2 {
         // return true  // fixme: debug
 
         try {
-            if (!this._tokensAsList.length || nowTS() - this.lastTimeLoaded > UPDATE_TIME_SECONDS) {
-                await this._loadAll()
-                this.lastTimeLoaded = nowTS()
+            if(!this._loadFromLocalStorage()) {
+                if (!this._tokensAsList.length || this.isItTimeToUpdate) {
+                    await this._loadAll()
+                    this.lastTimeLoaded = nowTS()
+                }
             }
             return true
         } catch (e) {
@@ -84,53 +92,14 @@ export class FewmanDBv2 {
         const candidates = this.tokens.filter(f => f.gender !== fewman.gender && f.stars <= maxStars)  // only f + m
         for (const candidate of candidates) {
             if (candidate.id !== fewman.id) {
-                const result = this.breed(candidate, fewman)
+                const result = breed(candidate, fewman)
                 if (result) {
                     results.push({candidate, result})
                 }
             }
         }
         results.sort((a, b) => b.result.stars - a.result.stars)
-        return results.slice(0, 50)
-    }
-
-    breed(f1, f2) {
-        if (f1.gender === f2.gender) {
-            return null
-        }
-
-        const newP = [f1.gender]
-        let tier = 0
-        let stars = 0
-        for (let i = 1; i <= 16; i += 2) {
-            const s1 = f1.p[i + 1]
-            const s2 = f2.p[i + 1]
-            const a1 = f1.p[i]
-            const a2 = f2.p[i]
-            let newA = a1
-            let newS = 0
-            if (a1 === a2) {
-                // same Attr
-                if (s1 === 0) {
-                    newS = 1
-                } else {
-                    newS = s1 + s2
-                }
-            } else {
-                // different attrs
-                newS = Math.max(s1, s2)
-                newA = newS === s1 ? a1 : a2
-            }
-            tier = Math.max(tier, newS)
-            stars += newS
-            newP.push(...[newA, newS])
-        }
-
-        return {
-            id: -1, p: newP, tier, stars,
-            gender: Math.random() > 0.5 ? f1.gender : f2.gender,
-            traits: {}  // todo!!! breed!!!
-        }
+        return results.slice(0, MAX_MATCHES)
     }
 
     // Private:
@@ -140,7 +109,6 @@ export class FewmanDBv2 {
         if (subCounter === undefined) {
             subCounter = this._counters[trait] = {}
         }
-
         subCounter[value] = 1 + (subCounter[value] ?? 0)
     }
 
@@ -220,6 +188,48 @@ export class FewmanDBv2 {
         this._sortPrice()
     }
 
+    _saveToLocalStorage(tokenIdResults, priceResults) {
+        if(localStorage && tokenIdResults && priceResults) {
+            const data = JSON.stringify({
+                lastLoadTS: this.lastTimeLoaded,
+                tokenDB: tokenIdResults,
+                priceDB: priceResults
+            })
+            localStorage.setItem('FEWDATA', data);
+            console.info(`Saved data to the local storage. ${data.length / 1024} Kb written.`)
+        }
+    }
+
+    _loadFromLocalStorage() {
+        if(localStorage) {
+            try {
+                const {lastLoadTS, tokenDB, priceDB} = JSON.parse(localStorage.getItem('FEWDATA'));
+                console.info(`There is data in local storage dated ${agoTS(lastLoadTS)} ago.`)
+                this.lastTimeLoaded = lastLoadTS
+
+                if(!lastLoadTS || !tokenDB || !priceDB) {
+                    console.warn('Invalid data!')
+                    return false
+                }
+
+                if(this.isItTimeToUpdate) {
+                    console.info('Parsing DB from the local storage...')
+                    this._parseTokenIds(tokenDB)
+                    this._parsePriceData(priceDB)
+                    console.info('Success!')
+                    return true
+                } else {
+                    console.warn('Data in the local storage is outdated!')
+                    return false
+                }
+            } catch (e) {
+                console.error(`Error! When loading local storage! ${e}`)
+                return false
+            }
+        }
+        return false
+    }
+
     async _loadAll() {
         console.log('Loading data from API...')
         const [priceResults, tokenIdResults] = await Promise.all([
@@ -228,6 +238,7 @@ export class FewmanDBv2 {
         ])
         this._parseTokenIds(tokenIdResults.data)
         this._parsePriceData(priceResults.data)
+        this._saveToLocalStorage(tokenIdResults.data, priceResults.data)
     }
 }
 
