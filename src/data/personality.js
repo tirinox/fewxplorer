@@ -175,18 +175,11 @@ export function breed(f1, f2) {
         const a2 = f2.p[pos]
         let newA = a1
         let newS = 0
-        if (a1 === a2) {
-            // same Attr
-            if (s1 === 0) {
-                newS = 1
-            } else {
-                newS = s1 + s2
-            }
-        } else {
-            // different attrs
-            newS = Math.max(s1, s2)
-            newA = newS === s1 ? a1 : a2
-        }
+
+        // NEW breed max:
+        newS = Math.max(s1, s2)
+        newA = newS === s1 ? a1 : a2
+
         tier = Math.max(tier, newS)
         stars += newS
         newP.push(...[newA, newS])

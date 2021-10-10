@@ -3,10 +3,11 @@ import {fewmanDB} from '../data/provider'
 import FewmanCard from "./FewmanCard.vue";
 import mitt, {EVENTS} from "../helpers/mitt";
 import HelpModal from "./HelpModal.vue";
-import {isNormalInteger} from "../helpers/util";
+import {isBottom, isNormalInteger} from "../helpers/util";
 
 const BATCH_SIZE = 42
-const MAX_TIER = 7
+const MAX_TIER = 3
+const MAX_STARS = 12
 
 export default {
     components: {HelpModal, FewmanCard},
@@ -29,6 +30,12 @@ export default {
         }
     },
     methods: {
+        handleScroll: function () {
+            if (isBottom()) {
+                this.loadMore()
+            }
+        },
+
         makeError() {
             this.results = []
             this.isError = true
@@ -55,7 +62,6 @@ export default {
         doSearch(more) {
             more = more === 'more'
             if (!more) {
-                console.info('new search')
                 this.nextIdentToScan = 0
                 this.results = []
                 this.allLoaded = false
@@ -139,7 +145,8 @@ export default {
                 gender = "${desiredGender}",
                 tiers = [${Array.from(desiredTiers).join(', ')}],
                 stars = [${Array.from(desiredStars).join(', ')}],
-                words = "${attribWords}"`)
+                words = "${attribWords},
+                more = ${more}"`)
 
                 this.filterWords = attribWords
 
@@ -206,7 +213,7 @@ export default {
                     this.allLoaded = true
                 }
 
-                console.info(`added ${thisBatch.length} elements`)
+                console.info(`Added ${thisBatch.length} elements (${this.results.length} total).`)
 
                 this.results.push(...thisBatch)
             }
@@ -232,9 +239,11 @@ export default {
             this.query = new URL(location.href).searchParams.get('q') || ''
         },
     },
-    created() {
+    onUnmounted() {
+        window.removeEventListener("scroll", this.handleScroll)
     },
     mounted() {
+        window.addEventListener('scroll', this.handleScroll);
         mitt.on('data_loaded', () => {
             this.restoreQuery()
             this.doSearch()
@@ -245,6 +254,7 @@ export default {
             this.priceBestTS = fewmanDB.priceBestTS
             this.loaded = true
 
+            // fixme: called even if it is not on this route!
             mitt.on('load_more', () => {
                 this.loadMore()
             })
@@ -260,12 +270,12 @@ export default {
             for (let i = 0; i <= MAX_TIER; ++i) {
                 arr.push({value: `tier ${i}`, caption: `t${i}`})
             }
-            for (let i = 0; i <= MAX_TIER; ++i) {
+            for (let i = 0; i <= MAX_STARS; ++i) {
                 arr.push({value: `star ${i}`, caption: `⭐${i}`})
             }
             return arr
         },
-    }
+    },
 }
 
 </script>

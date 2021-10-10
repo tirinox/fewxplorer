@@ -5,6 +5,8 @@ import {fewmanDB} from "../data/provider";
 import mitt, {EVENTS} from "../helpers/mitt";
 import StarSelector from "./StarSelector.vue";
 
+const MAX_STARS = 12
+
 export default {
     components: {StarSelector, FewmanCard},
     props: {
@@ -12,13 +14,14 @@ export default {
     },
     data() {
         return {
-            maxStars: 10,
+            currentMaxStars: MAX_STARS,
+            maxStars: MAX_STARS,
             gotData: false
         }
     },
     methods: {
         updateMatches(i) {
-            this.maxStars = i
+            this.currentMaxStars = i
         }
     },
     created() {
@@ -40,7 +43,7 @@ export default {
             if (!fewman) {
                 return []
             }
-            return fewmanDB.bestMatch(fewman, this.maxStars)
+            return fewmanDB.bestMatch(fewman, this.currentMaxStars)
         },
         subjectId() {
             return this.$route.params.token_id
@@ -76,8 +79,8 @@ export default {
             </div>
             <div>
                 <div class="d-inline">
-                    <strong>Max stars of partner:</strong>
-                    <StarSelector :max-stars="10" :initial-stars="7" @change="updateMatches"></StarSelector>
+                    <strong>Max stars of partner ({{ currentMaxStars }}):</strong>
+                    <StarSelector :max-stars="maxStars" :initial-stars="currentMaxStars" @change="updateMatches"></StarSelector>
                 </div>
             </div>
         </div>

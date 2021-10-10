@@ -1,10 +1,10 @@
 import axios from "axios";
-import {agoTS, compare, nowTS} from "../helpers/util.js";
+import {agoTS, compare, nowTS, wait} from "../helpers/util.js";
 import {breed, decodePersonality} from "./personality";
 
 const PRICE_API_URL = 'https://fewmans.xyz/fewpi/opensea/'
 const TOKEN_ID_API_URL = 'https://fewmans.xyz/fewpi/tokenids/'
-const UPDATE_TIME_SECONDS = 30
+const UPDATE_TIME_SECONDS = 60
 
 const MAX_MATCHES = 50
 
@@ -66,21 +66,18 @@ export class FewmanDBv2 {
     }
 
     async updateIfNeeded() {
-        // if (nowTS() - this.lastTimeLoaded > UPDATE_TIME_SECONDS) {
-        //     await this._loadAll()
-        //     this.lastTimeLoaded = nowTS()
-        // }
-        // return true  // fixme: debug
-
         try {
             if(!this._loadFromLocalStorage()) {
                 if (!this._tokensAsList.length || this.isItTimeToUpdate) {
                     await this._loadAll()
-                    this.lastTimeLoaded = nowTS()
                 }
+            } else {
+                await wait(1)
             }
             return true
         } catch (e) {
+            console.error(`Error! ${e}`)
+            // throw e  // fixme!
             return false
         }
     }
@@ -174,6 +171,9 @@ export class FewmanDBv2 {
 
         for (let k of Object.keys(this._priceDB)) {
             const fewman = this.findById(k)
+            if(!fewman) {
+                continue
+            }
 
             fewman.priceInfo = this.getPriceInfo(k)
             if (fewman.priceInfo) {
@@ -204,7 +204,7 @@ export class FewmanDBv2 {
         if(localStorage) {
             try {
                 const {lastLoadTS, tokenDB, priceDB} = JSON.parse(localStorage.getItem('FEWDATA'));
-                console.info(`There is data in local storage dated ${agoTS(lastLoadTS)} ago.`)
+                console.info(`There is data in local storage dated ${agoTS(lastLoadTS)}.`)
                 this.lastTimeLoaded = lastLoadTS
 
                 if(!lastLoadTS || !tokenDB || !priceDB) {
@@ -212,11 +212,11 @@ export class FewmanDBv2 {
                     return false
                 }
 
-                if(this.isItTimeToUpdate) {
+                if(!this.isItTimeToUpdate) {
                     console.info('Parsing DB from the local storage...')
                     this._parseTokenIds(tokenDB)
                     this._parsePriceData(priceDB)
-                    console.info('Success!')
+                    console.info(`Success! ${this.totalFewmans} fewmans!`)
                     return true
                 } else {
                     console.warn('Data in the local storage is outdated!')
@@ -238,6 +238,7 @@ export class FewmanDBv2 {
         ])
         this._parseTokenIds(tokenIdResults.data)
         this._parsePriceData(priceResults.data)
+        this.lastTimeLoaded = nowTS()
         this._saveToLocalStorage(tokenIdResults.data, priceResults.data)
     }
 }

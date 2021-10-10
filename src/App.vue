@@ -17,10 +17,6 @@ export default {
     },
     methods: {
         handleScroll: function () {
-            if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight - 2) {
-                mitt.emit("load_more")
-            }
-
             if (this.scTimer) {
                 return;
             }
@@ -36,6 +32,15 @@ export default {
                 behavior: "smooth"
             });
         },
+
+        updateData() {
+            this.loading = true
+            fewmanDB.updateIfNeeded().finally(() => {
+                this.loading = false
+                mitt.emit('data_loaded')
+                console.log('FewmanDB data loaded!')
+            })
+        }
     },
     computed: {
         linkHolders() {
@@ -45,15 +50,15 @@ export default {
             return `https://etherscan.io/address/${FEWMANS_CONTRACT}`
         }
     },
+    watch: {
+        $route(to, from) {
+            this.updateData()
+        }
+    },
     mounted() {
         window.addEventListener('scroll', this.handleScroll);
         mitt.on(EVENTS.SCROLL_TOP, this.toTop)
-
-        this.loading = true
-        return fewmanDB.updateIfNeeded().finally(() => {
-            this.loading = false
-            mitt.emit('data_loaded')
-        })
+        this.updateData()
     },
     onUnmounted() {
         window.removeEventListener("scroll", this.handleScroll)
@@ -118,7 +123,7 @@ export default {
 
         <router-view/>
 
-        <footer class="page-footer font-small blue pt-4 pb-5">
+        <footer class="page-footer font-small pt-4 pb-5">
             <div class="container-fluid text-center text-md-left">
                 <div class="row">
                     <div class="col-md-12 mt-md-0 mt-3 pb-3">

@@ -5,12 +5,20 @@ export function nowTS() {
 }
 
 export function agoTS(value) {
-    if(value) {
+    if (value) {
         return timeago.format(new Date(value * 1000))
     } else {
         return 'N/A'
     }
 }
+
+export function isBottom() {
+    return (document.documentElement.scrollTop + document.documentElement.clientHeight
+        >=
+        document.documentElement.scrollHeight)
+}
+
+export const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export function isNormalInteger(str) {
     return /^\+?(0|[1-9]\d*)$/.test(str);
