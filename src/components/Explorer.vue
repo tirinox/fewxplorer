@@ -4,8 +4,9 @@ import FewmanCard from "./FewmanCard.vue";
 import mitt, {EVENTS} from "../helpers/mitt";
 import HelpModal from "./HelpModal.vue";
 import {isBottom, isNormalInteger} from "../helpers/util";
+import {semanticSearch} from "../data/search";
 
-const BATCH_SIZE = 42
+
 const MAX_TIER = 3
 const MAX_STARS = 12
 
@@ -79,161 +80,38 @@ export default {
                 this.results = fewman ? [fewman] : []
                 this.allLoaded = true
             } else {
-                let words = q.match(/\b(\w+)\b/g) || []
-
-                let desiredGender = null
-                const desiredTiers = new Set()
-                const desiredStars = new Set()
-                this.isError = false
-
-                const fems = new Set(['f', 'fe', 'fem', 'female', 'femal', 'woman', 'girl'])
-                const males = new Set(['m', 'ma', 'mal', 'male', 'man', 'boy'])
-
-                let buy = false
-                let price = false
-
-                let attribWords = []
-                for (let i = 0; i < words.length; ++i) {
-                    const last = i === words.length - 1
-                    const  w = words[i]
-                    if (w === 'buy') {
-                        buy = true
-                    } else if (w === 'price') {
-                        price = true
-                    } else if (fems.has(w)) {
-                        if (desiredGender) {
-                            return this.makeError()
-                        } else {
-                            desiredGender = 'Female'
-                        }
-                    } else if (males.has(w)) {
-                        if (desiredGender) {
-                            return this.makeError()
-                        } else {
-                            desiredGender = 'Male'
-                        }
-                    } else if (w === 'tier' || w === 't') {
-                        if (last) {
-                            return this.makeError()
-                        } else {
-                            ++i
-                            const next = words[i]
-                            if (isNormalInteger(next)) {
-                                const t = parseInt(next)
-                                if (t > MAX_TIER) {
-                                    return this.makeError()
-                                }
-                                desiredTiers.add(t)
-                            }
-                        }
-                    } else if (w === 'stars' || w === 'star') {
-                        if (last) {
-                            return this.makeError()
-                        } else {
-                            ++i
-                            const next = words[i]
-                            if (isNormalInteger(next)) {
-                                desiredStars.add(parseInt(next))
-                            }
-                        }
-                    } else {
-                        attribWords.push(w)
-                    }
+                const results = semanticSearch(q, this.nextIdentToScan)
+                this.nextIdentToScan = results.nextIndex
+                this.allLoaded = results.allLoaded
+                if(results.isError) {
+                    this.makeError()
+                } else {
+                    this.isError = false
                 }
-
-                console.log(`Search:
-                gender = "${desiredGender}",
-                tiers = [${Array.from(desiredTiers).join(', ')}],
-                stars = [${Array.from(desiredStars).join(', ')}],
-                words = "${attribWords},
-                more = ${more}"`)
-
-                this.filterWords = attribWords
-
-                function isGood(item) {
-                    if (q === '') {
-                        return true
-                    }
-
-                    if (buy && (!item.priceInfo || !item.priceInfo.buyNow)) {
-                        return false
-                    }
-                    if (price && (!item.priceInfo)) {
-                        return false
-                    }
-
-                    const [
-                        gender,
-                        hair, hair_star,
-                        eyes, eyes_star,
-                        body, body_star,
-                        sex, sex_star,
-                        intel, intel_star,
-                        career, career_star,
-                        curse, curse_star,
-                        gift, gift_star
-                    ] = item.p
-
-                    if (desiredTiers.size > 0) {
-                        if (!desiredTiers.has(item.tier)) {
-                            return false
-                        }
-                    }
-
-                    if (desiredStars.size > 0) {
-                        if (!desiredStars.has(item.stars)) {
-                            return false
-                        }
-                    }
-
-                    const genderMatch = desiredGender === null || desiredGender === gender
-                    if (!genderMatch) {
-                        return false
-                    }
-
-                    const attribs = [hair, eyes, body, sex, intel, career, curse, gift].map(w => w.toLowerCase())
-                    const text = attribs.join(' ')
-                    return attribWords && attribWords.every(w => text.includes(w))
-                }
-
-                let thisBatch = []
-                const data = buy ? fewmanDB.tokensPriceSorted : fewmanDB.tokens;
-                for (let i = this.nextIdentToScan; i < data.length; ++i) {
-                    this.nextIdentToScan = i + 1
-                    const el = data[i]
-                    if (isGood(el)) {
-                        thisBatch.push(el)
-                    }
-                    if (thisBatch.length >= BATCH_SIZE) {
-                        break
-                    }
-                }
-
-                if (thisBatch.length < BATCH_SIZE) {
-                    this.allLoaded = true
-                }
-
-                console.info(`Added ${thisBatch.length} elements (${this.results.length} total).`)
-
-                this.results.push(...thisBatch)
+                this.results.push(...results.batch)
+                console.info(`Added ${results.batch.length} elements (${this.results.length} total now).`)
             }
-
             if (!more) {
                 mitt.emit(EVENTS.SCROLL_TOP)
             }
         },
+
         focusSearch() {
             if(this.$refs.searchQuery) {
                 this.$refs.searchQuery.focus();
             }
         },
+
         loadMore() {
             this.doSearch('more')
         },
+
         copyQuery() {
-            const q1 = this.query
-            const url = location.protocol + '//' + location.host + location.pathname + '?q=' + encodeURI(q1)
-            navigator.clipboard.writeText(url)
+            if(navigator && navigator.clipboard) {
+                const q1 = this.query
+                const url = location.protocol + '//' + location.host + location.pathname + '?q=' + encodeURI(q1)
+                navigator.clipboard.writeText(url)
+            }
         },
         restoreQuery() {
             this.query = new URL(location.href).searchParams.get('q') || ''
@@ -288,7 +166,7 @@ export default {
             <small class="disabled">
                 Last price update: <em>{{ $filters.agoTS(priceBestTS) }}</em>,
                 token list last update: <em>{{ $filters.agoTS(lastTokenUpdateTS) }}</em>,
-                total tokens: <em>{{ totalTokens }}</em>
+                total: <strong><em>{{ totalTokens }}</em> Fewmans</strong>
             </small>
         </div>
 

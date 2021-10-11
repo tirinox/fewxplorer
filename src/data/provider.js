@@ -4,7 +4,9 @@ import {breed, decodePersonality} from "./personality";
 
 const PRICE_API_URL = 'https://fewmans.xyz/fewpi/opensea/'
 const TOKEN_ID_API_URL = 'https://fewmans.xyz/fewpi/tokenids/'
-const UPDATE_TIME_SECONDS = 60
+
+// const UPDATE_TIME_SECONDS = 60
+const UPDATE_TIME_SECONDS = 60 * 60 * 24 * 30  // fixme: debug
 
 const MAX_MATCHES = 50
 
@@ -119,8 +121,8 @@ export class FewmanDBv2 {
 
         this._idToFewman = {}
         this._tokensAsList = []
-        for (const [ident, personalityStr] of Object.values(data['ids'])) {
-            const fewman = decodePersonality(ident, personalityStr)
+        for (const [ident, personalityStr, owner, generation] of Object.values(data['ids'])) {
+            const fewman = decodePersonality(ident, personalityStr, owner, generation)
             this._idToFewman[ident] = fewman
             this._tokensAsList.push(fewman)
 

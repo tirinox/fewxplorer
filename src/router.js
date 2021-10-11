@@ -1,4 +1,4 @@
-import { createWebHistory, createRouter } from "vue-router";
+import {createRouter, createWebHashHistory} from "vue-router";
 import Explorer from "./components/Explorer.vue";
 import Match from "./components/MatchPage.vue";
 import Rarity from "./components/RarityPage.vue";
@@ -23,7 +23,7 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes,
 });
 

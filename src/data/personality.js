@@ -123,7 +123,7 @@ export function genderByTokenId(tokenId) {
     }
 }
 
-export function decodePersonality(tokenId, traitArr) {
+export function decodePersonality(tokenId, traitArr, owner, generation) {
     if (traitArr instanceof String) {
         traitArr = traitArr.split('')
     }
@@ -132,7 +132,9 @@ export function decodePersonality(tokenId, traitArr) {
         traits: {},
         gender: genderByTokenId(tokenId),
         id: tokenId,
-        p: []
+        p: [],
+        owner,
+        generation,
     }
     let index = 0
     let totalStars = 0
