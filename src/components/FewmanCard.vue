@@ -16,8 +16,14 @@
                     <span class="female gender" v-if="isFem">Female</span>
                     <span class="male gender" v-else>Male</span>
                 </div>
+
+
                 <div class="float-end few-tier gender">
                     Tier {{ sourceFewman.tier }}
+                </div>
+
+                <div class="float-end few-tier gender" v-if="sourceFewman.generation > 0">
+                    Gen {{ sourceFewman.generation }}
                 </div>
 
                 <h6 class="few-title" v-if="child && isChildNow">

@@ -178,6 +178,10 @@ h1, h2, h3, h4, h5, h6, button {
     font-family: 'Press Start 2P', sans-serif;
 }
 
+h6 {
+    font-size: 10pt !important;
+}
+
 .logo {
     width: 40px;
 }

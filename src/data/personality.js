@@ -128,6 +128,8 @@ export function decodePersonality(tokenId, traitArr, owner, generation) {
         traitArr = traitArr.split('')
     }
 
+    generation = typeof generation === 'undefined' ? 0 : +generation
+
     let fewman = {
         traits: {},
         gender: genderByTokenId(tokenId),
