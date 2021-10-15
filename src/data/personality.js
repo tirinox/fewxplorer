@@ -137,6 +137,7 @@ export function decodePersonality(tokenId, traitArr, owner, generation) {
         p: [],
         owner,
         generation,
+        originalArr: traitArr,
     }
     let index = 0
     let totalStars = 0

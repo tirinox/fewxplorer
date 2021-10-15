@@ -29,6 +29,20 @@
         <div class="col-4 mb-4" v-if="!!resultFewman">
             <h5 class="text-success">Success! Child:</h5>
             <FewmanCard :fewman="resultFewman" hide-breeding="1"></FewmanCard>
+            <div class="mt-1">
+                <span v-if="needGold > 0">
+                    You will spend <strong>{{ needGold }} 👑 FEWGO</strong>
+                </span>
+                <span v-else>
+                    It is free
+                </span>
+            </div>
+            <div>
+                and you will get <strong> {{ outGold }} 👑 FEWGO</strong> after breeding.
+            </div>
+            <div>
+                ⚠️ Both parent Fewmans will die...
+            </div>
         </div>
         <div class="col-auto mb-4" v-else>
             <h5 class="text-danger">Breeding is not possible!</h5>
@@ -43,6 +57,10 @@ import FewmanCard from "./FewmanCard.vue";
 import {fewmanDB} from "../data/provider";
 import mitt from "../helpers/mitt";
 import PickParent from "./PickParent.vue";
+import useBreedingState from "../data/breed.js";
+
+const breed = useBreedingState()
+
 export default {
     name: "BreedEmulatorPage",
     components: {PickParent, FewmanCard},
@@ -52,7 +70,9 @@ export default {
             f1: null,
             f2: null,
             resultFewman: null,
-            whyReason: ''
+            whyReason: '',
+            needGold: 0,
+            outGold: 0,
         }
     },
     mounted() {
@@ -65,23 +85,11 @@ export default {
     },
     methods: {
         updateChild() {
-            let child = null
-            let reason = ''
-            const f1 = this.f1
-            const f2 = this.f2
-            if(!f1) {
-                reason = 'Parent F1 is not set.'
-            } else if(!f2) {
-                reason = 'Parent F2 is not set.'
-            } else if(f1.id === f2.id) {
-                reason = 'One cannot breed with self.'
-            } else if(f1.gender === f2.gender) {
-                reason = 'One must be a man and the other must be a woman.'
-            } else {
-                child = fewmanDB.findById(11)  // fixme! debug
-            }
+            const {child, reason, needGold, outGold} = breed.breed(this.f1, this.f2)
             this.resultFewman = child
             this.whyReason = reason
+            this.needGold = needGold
+            this.outGold = outGold
         },
 
         updateFew(value, f) {
