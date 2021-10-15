@@ -32,7 +32,7 @@ export function semanticSearch(q, startIndex) {
     let attribWords = []
     for (let i = 0; i < words.length; ++i) {
         const last = i === words.length - 1
-        const w = words[i]
+        const w = words[i].toLowerCase()
         if (w === 'buy') {
             buy = true
         } else if (w === 'price') {
@@ -135,7 +135,7 @@ export function semanticSearch(q, startIndex) {
         }
 
         if (desiredOwners.size > 0) {
-            if (!item.owner || !desiredOwners.has(item.owner)) {
+            if (!item.owner || !desiredOwners.has(item.owner.toLowerCase())) {
                 return false
             }
         }

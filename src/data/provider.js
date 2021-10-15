@@ -5,8 +5,8 @@ import {breed, decodePersonality} from "./personality";
 const PRICE_API_URL = 'https://fewmans.xyz/fewpi/opensea/'
 const TOKEN_ID_API_URL = 'https://fewmans.xyz/fewpi/tokenids/'
 
-// const UPDATE_TIME_SECONDS = 60
-const UPDATE_TIME_SECONDS = 60 * 60 * 24 * 30  // fixme: debug
+const UPDATE_TIME_SECONDS = 60
+// const UPDATE_TIME_SECONDS = 60 * 60 * 24 * 30  // fixme: debug
 
 const MAX_MATCHES = 50
 
