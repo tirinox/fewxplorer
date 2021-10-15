@@ -196,7 +196,9 @@ export default {
     </div>
 
     <div class="row m-1" v-if="loaded">
-        <FewmanCard :fewman="v" v-for="v in results" :key="v.id"></FewmanCard>
+        <div class="col-xl-4 col-lg-4 col-md-6 mb-4" v-for="v in results" :key="v.id">
+            <FewmanCard :fewman="v"></FewmanCard>
+        </div>
         <div class="text-center" v-if="!results.length">
             <h2 class="m-4">No FEWMANS like this</h2>
         </div>

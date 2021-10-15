@@ -1,103 +1,116 @@
 <template>
-    <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
-        <div class="card">
-            <div
-                class="price-tag"
-                v-if="price > 0"
-                :class="{'price-bid': !buyNow}"
-            >
-                <span>{{ price }}
-                    <span v-if="buyNow">Eth!</span>
-                    <span v-else>Eth?</span>
-                </span>
+    <div class="card rect">
+        <div
+            class="price-tag"
+            v-if="price > 0"
+            :class="{'price-bid': !buyNow}"
+        >
+            <span>{{ price }}
+                <span v-if="buyNow">Eth!</span>
+                <span v-else>Eth?</span>
+            </span>
+        </div>
+        <div class="card-header rect">
+            <div class="float-end gender">
+                <span class="female gender" v-if="isFem">Female</span>
+                <span class="male gender" v-else>Male</span>
             </div>
-            <div class="card-header">
-                <div class="float-end gender">
-                    <span class="female gender" v-if="isFem">Female</span>
-                    <span class="male gender" v-else>Male</span>
-                </div>
 
-
-                <div class="float-end few-tier gender">
-                    Tier {{ sourceFewman.tier }}
-                </div>
-
-                <div class="float-end few-tier gender" v-if="sourceFewman.generation > 0">
-                    Gen {{ sourceFewman.generation }}
-                </div>
-
-                <h6 class="few-title" v-if="child && isChildNow">
-                    #{{ fewman.id }}'s child
-                </h6>
-                <h6 class="few-title" v-else>
-                    Fewman #{{ fewman.id }}
-                </h6>
-
+            <div class="float-end few-tier gender">
+                Tier {{ sourceFewman.tier }}
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col col-6">
-                        <span class="col-head">APPEARANCE</span>
-                    </div>
-                    <div class="col col-6">
-                        <span class="col-head">ATTRIBUTES</span>
-                    </div>
+
+            <div class="float-end few-tier gender" v-if="sourceFewman.generation > 0">
+                Gen {{ sourceFewman.generation }}
+            </div>
+
+            <h6 class="few-title" v-if="child && isChildNow">
+                #{{ fewman.id }}'s child
+            </h6>
+            <h6 class="few-title" v-else>
+                Fewman #{{ fewman.id }}
+            </h6>
+
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col col-6">
+                    <span class="col-head">APPEARANCE</span>
                 </div>
-                <div class="row" v-for="i in [0, 1, 2, 3]">
-                    <div class="col col-6 attr">
-                        <div class="py-1">
-                            <span class="attr-head">{{ leftNames[i] }}</span><br>
-                            <span class="attr-val">
-                                {{ paramName(leftNames[i]) }}
-                                <img alt="star" src="/img/star.png" class="star" v-for="_ in paramStars(leftNames[i])">
-                            </span>
-                        </div>
-                    </div>
-                    <div class="col col-6 attr">
-                        <div class="py-1">
-                            <span class="attr-head">{{ rightNames[i] }}</span><br>
-                            <span class="attr-val">
-                                {{ paramName(rightNames[i]) }}
-                                <img alt="star" src="/img/star.png" class="star" v-for="_ in paramStars(rightNames[i])">
-                            </span>
-                        </div>
-                    </div>
+                <div class="col col-6">
+                    <span class="col-head">ATTRIBUTES</span>
                 </div>
             </div>
-            <div class="card-footer footer-2">
-                <div class="total float-end">
-                    <div v-if="sourceFewman.stars > 0">
-                        Total {{ sourceFewman.stars }}<img alt="star" src="/img/star.png" class="star">
-                    </div>
-                    <div v-else>
-                        Common
-                    </div>
-                </div>
-                <div class="total">
-                    {{ $filters.percentage(rarity, 3) }}
-                </div>
-            </div>
-            <div class="card-footer">
-                <p>
-                    <a :href="linkOpenSea" target="_blank">
-                        <span v-if="price > 0">
-                            <span v-if="buyNow" class="text-success">
-                                Buy
-                            </span>
-                            <span v-else class="text-primary">
-                                Bid
-                            </span>
+            <div class="row" v-for="i in [0, 1, 2, 3]">
+                <div class="col col-6 attr">
+                    <div class="py-1">
+                        <span class="attr-head">{{ leftNames[i] }}</span><br>
+                        <span class="attr-val">
+                            {{ paramName(leftNames[i]) }}
+                            <img alt="star" src="/img/star.png" class="star" v-for="_ in paramStars(leftNames[i])">
                         </span>
-                        <span v-else>OpenSea</span>
-                    </a>
-                    ▪
-                    <a :href="linkScan" target="_blank">Scan</a>
-                    ▪
-                    <a @click="isChildNow = false" v-if="isChildNow">Back</a>
-                    <router-link :to="'/match/' + fewman.id" v-if="!child">Match</router-link>
-                    <a @click="isChildNow = true" v-if="child && !isChildNow">Child?</a>
-                </p>
+                    </div>
+                </div>
+                <div class="col col-6 attr">
+                    <div class="py-1">
+                        <span class="attr-head">{{ rightNames[i] }}</span><br>
+                        <span class="attr-val">
+                            {{ paramName(rightNames[i]) }}
+                            <img alt="star" src="/img/star.png" class="star" v-for="_ in paramStars(rightNames[i])">
+                        </span>
+                    </div>
+                </div>
             </div>
+        </div>
+        <div class="card-footer footer-2">
+            <div class="total float-end">
+                <div v-if="sourceFewman.stars > 0">
+                    Total {{ sourceFewman.stars }}<img alt="star" src="/img/star.png" class="star">
+                </div>
+                <div v-else>
+                    Common
+                </div>
+            </div>
+            <div class="total">
+                {{ $filters.percentage(rarity, 3) }}
+            </div>
+        </div>
+        <div class="card-footer">
+            <a :href="linkOpenSea" target="_blank">
+                    <span v-if="price > 0">
+                        <span v-if="buyNow" class="text-success">
+                            Buy
+                        </span>
+                        <span v-else class="text-primary">
+                            Bid
+                        </span>
+                    </span>
+                <span v-else>OpenSea</span>
+            </a>
+
+            <span v-if="!isChildNow">
+                ▪ <a :href="linkScan" target="_blank">Scan</a>
+            </span>
+
+            <span v-if="child && !isChildNow">
+                ▪ <a @click="isChildNow = true">Child</a>
+            </span>
+
+            <span v-if="!child">
+                ▪
+                <router-link :to="'/match/' + fewman.id">Match</router-link>
+            </span>
+
+            <span v-if="!hideBreeding && !isChildNow">
+                ▪
+                <a @click="setF1">
+                    <span v-if="globalF1 === fewman.id">✔️</span>F1
+                </a>
+                <router-link :to="'/breedem/' + globalF1 + '/' + fewman.id" v-if="globalF1 !== fewman.id">
+                    ▪
+                    F2
+                </router-link>
+            </span>
         </div>
     </div>
 </template>
@@ -106,6 +119,9 @@
 
 import {fewmanDB} from "../data/provider";
 import {FEWMANS_CONTRACT} from "../data/opensea";
+import useBreedingState from "../data/breed";
+
+const state = useBreedingState()
 
 const LEFT_NAMES = [
     'Hair', 'Eyes', 'Body', 'Sexuality'
@@ -117,7 +133,7 @@ const RIGHT_NAMES = [
 
 export default {
     name: "FewmanCard",
-    props: ['fewman', 'child'],
+    props: ['fewman', 'child', 'hideBreeding'],
     data() {
         return {
             isChildNow: false,
@@ -146,6 +162,9 @@ export default {
         },
         linkScan() {
             return `https://etherscan.io/token/${FEWMANS_CONTRACT}?a=${this.fewman.id}`
+        },
+        globalF1() {
+            return state.f1TokenId.value
         }
     },
     methods: {
@@ -155,10 +174,14 @@ export default {
         paramStars(n) {
             return this.sourceFewman.traits[n][1]
         },
+        setF1() {
+            state.setF1(this.sourceFewman.id)
+            console.log(state.f1TokenId.value)
+        }
     },
     mounted() {
         const priceData = fewmanDB.getPriceInfo(this.fewman.id)
-        if(priceData) {
+        if (priceData) {
             this.price = priceData.price
             this.buyNow = priceData.buyNow && priceData.m
         }
@@ -202,8 +225,8 @@ a {
     line-height: 110%;
 }
 
-.card {
-    border-radius: 0;
+.rect {
+    border-radius: 0 !important;
 }
 
 .card-header {

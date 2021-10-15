@@ -2,6 +2,7 @@ import {createRouter, createWebHashHistory} from "vue-router";
 import Explorer from "./components/Explorer.vue";
 import Match from "./components/MatchPage.vue";
 import Rarity from "./components/RarityPage.vue";
+import BreedEmulatorPage from "./components/BreedEmulatorPage.vue";
 
 
 const routes = [
@@ -20,7 +21,18 @@ const routes = [
         name: 'Rarity',
         component: Rarity,
     },
+    {
+        path: "/breedem",
+        name: "BreedEm",
+        component: BreedEmulatorPage,
+    },
+    {
+        path: "/breedem/:f1/:f2",
+        name: "BreedEm2",
+        component: BreedEmulatorPage,
+    },
 ];
+
 
 const router = createRouter({
     history: createWebHashHistory(),
