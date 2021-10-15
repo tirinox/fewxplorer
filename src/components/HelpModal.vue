@@ -11,17 +11,20 @@
                         <strong>There is a FEW rules. See examples:</strong>
                     </p>
                     <ul>
-                        <li><span>345</span>&nbsp;<a href="/?q=345">try</a></li>
-                        <li><span>male gay president</span>&nbsp;<a href="/?q=male gay president">try</a></li>
-                        <li><span>porn addict regular clerk</span>&nbsp;<a href="/?q=porn addict regular clerk">try</a></li>
-                        <li><span>red fat medic</span>&nbsp;<a href="/?q=red fat medic">try</a></li>
-                        <li><span>not gifted albino</span>&nbsp;<a href="/?q=not gifted albino">try</a></li>
-                        <li><span>tier 1</span>&nbsp;<a href="/?q=tier 1">try</a></li>
-                        <li><span>stars 4</span>&nbsp;<a href="/?q=stars 4">try</a></li>
-                        <li><span>tier 2 tier 3 violet</span>&nbsp;<a href="/?q=tier 2 tier 3 violet">try</a></li>
-                        <li><span>star 5 star 6 hetero</span>&nbsp;<a href="/?q=star 5 star 6 hetero">try</a></li>
+                        <li><code>"345"</code>(search by token ID)&nbsp;<a href="/?q=345">👉 try</a></li>
+                        <li><code>"male gay president"</code>&nbsp;<a href="/?q=male gay president">👉 try</a></li>
+                        <li><code>"porn addict regular clerk"</code>&nbsp;<a href="/?q=porn addict regular clerk">👉 try</a></li>
+                        <li><code>"red fat medic"</code>&nbsp;<a href="/?q=red fat medic">👉 try</a></li>
+                        <li><code>"not gifted albino"</code>&nbsp;<a href="/?q=not gifted albino">👉 try</a></li>
+                        <li><code>"tier 1"</code>&nbsp;<a href="/?q=tier 1">👉 try</a></li>
+                        <li><code>"stars 4"</code>&nbsp;<a href="/?q=stars 4">👉 try</a></li>
+                        <li><code>"tier 2 tier 3 violet"</code>&nbsp;<a href="/?q=tier 2 tier 3 violet">👉 try</a></li>
+                        <li><code>"star 5 star 6 hetero"</code>&nbsp;<a href="/?q=star 5 star 6 hetero">👉 try</a></li>
+                        <li><code>"gen 3"</code>(search by generation)&nbsp;<a href="/?q=gen 3">👉 try</a></li>
+                        <li><code>"0x4d9d3e18ed6f62018a84d654201938b78689399a"</code>(search by address)&nbsp;
+                            <a href="/?q=0x4d9d3e18ed6f62018a84d654201938b78689399a">👉 try</a></li>
                     </ul>
-                    <p>
+                    <p class="small">
                         <strong>Tier 0</strong> = no stars at all<br>
                         <strong>Tier 1</strong> = at least one star<br>
                         <strong>Tier 2</strong> = two stars on attribute<br>

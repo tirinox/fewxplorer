@@ -1,7 +1,7 @@
 <script>
 import Explorer from './components/Explorer.vue'
 import mitt, {EVENTS} from "./helpers/mitt";
-import {FEWMANS_CONTRACT} from "./data/opensea";
+import {FEWMANS_BREED_CONTRACT, FEWMANS_CONTRACT} from "./data/opensea";
 import {fewmanDB} from "./data/provider";
 import LoadView from "./components/LoadView.vue";
 
@@ -48,7 +48,10 @@ export default {
         },
         linkContract() {
             return `https://etherscan.io/address/${FEWMANS_CONTRACT}`
-        }
+        },
+        linkBreed() {
+            return `https://etherscan.io/address/${FEWMANS_BREED_CONTRACT}#writeContract`
+        },
     },
     watch: {
         $route(to, from) {
@@ -89,6 +92,9 @@ export default {
                         <li class="nav-item">
                             <router-link class="nav-link" to="/rarity">Rarity</router-link>
                         </li>
+                        <li class="nav-item">
+                            <router-link class="nav-link" to="/breedem">BreedEm</router-link>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">
@@ -100,6 +106,7 @@ export default {
                                 <li><a class="dropdown-item" href="https://opensea.io/collection/fewmans"
                                        target="_blank">Open Sea</a></li>
                                 <li><a class="dropdown-item" :href="linkContract" target="_blank">Contract</a></li>
+                                <li><a class="dropdown-item" :href="linkBreed" target="_blank">Breeding contract</a></li>
                                 <li><a class="dropdown-item" :href="linkHolders" target="_blank">Holders</a></li>
                                 <li><a class="dropdown-item"
                                        href="https://etherscan.io/token/0x60e46a4dd91d10506d8efa2caa266e7191fe7ea8"
@@ -225,6 +232,10 @@ ul {
 
 .male {
     color: #00BECA;
+}
+
+code {
+    font-family: "Courier New", Courier, monospace !important;
 }
 
 </style>
