@@ -1,6 +1,10 @@
 import {toRefs, reactive} from "vue";
 import {fewmanDB} from "./provider";
-import {genderByTokenId} from "./personality";
+import {decodePersonality, genderByTokenId} from "./personality";
+import web3 from 'web3/dist/web3.min.js'
+
+
+const SEED = "We Like Fewmans"
 
 const GEN_PROB = [
     [128, 0x0, 0x0,  0x0, 0x0,  0x0],
@@ -35,13 +39,10 @@ const state = reactive({
 });
 
 
-function safeBreed(f1, f2) {
+function safeBreed(fewman1, fewman2) {
     let reason = ''
 
-    let totalStars = 0
-    let tier = 0
-
-    let generation = Math.max(f1.generation, f2.generation)
+    let generation = Math.max(fewman1.generation, fewman2.generation)
     if(generation >= 13) {
         return {
             child: null,
@@ -51,7 +52,7 @@ function safeBreed(f1, f2) {
     }
 
     if(generation > 10) {
-        if(f1.tier < 3 || f2.tier < 3) {
+        if(fewman1.tier < 3 && fewman2.tier < 3) {
             return {
                 child: null, needGold: 0, outGold: 0,
                 reason: 'The rarest fewman is required'
@@ -59,7 +60,7 @@ function safeBreed(f1, f2) {
         }
     } else {
         const reqStars = STARS_REQUIRED[generation]
-        if(!(f1.stars >= reqStars || f2.stars >= reqStars)) {
+        if(!(fewman1.stars >= reqStars || fewman2.stars >= reqStars)) {
             return {
                 child: null, needGold: 0, outGold: 0,
                 reason: `Some more stars (${reqStars}⭐) are required for this breeding`
@@ -68,46 +69,55 @@ function safeBreed(f1, f2) {
     }
 
     const needGold = PRICES[generation]
-    let outGold = PRICES[generation + 1]
-    
-    const tokenId = +fewmanDB.totalFewmans
+    let outGold = needGold * 2
 
-    let child = {
-        traits: {},
-        gender: genderByTokenId(tokenId),
-        id: tokenId,
-        p: [],
-        owner: null,
-        generation: (generation + 1),
+    const newTokenId = +fewmanDB.totalFewmans
+
+    let f1 = +fewman1.id
+    let f2 = +fewman2.id
+
+    if(f1 & 1 === 0) {
+        let temp = f1
+        f1 = f2
+        f2 = temp
+
+        temp = fewman1
+        fewman1 = fewman2
+        fewman2 = temp
     }
 
-    child.p.push(child.gender)
+    const coitusHash = web3.utils.keccak256(web3.utils.encodePacked(
+        {type: 'uint16', value: f1},
+        {type: 'uint16', value: f2},
+        {type: 'string', value: SEED},
+    )) // returns string like "0x80..."
 
-    // todo: iterate
+    let pseudoRandom = new web3.utils.BN(coitusHash.slice(2), 16)
+    console.log(`f1 = ${f1}; f2 = ${f2}; pseudoRandom = ${pseudoRandom}`)
+
     const originalArr = []
 
-    // fixme: debug
-    child.traits = f1.traits
-    child.p = f1.p
-    // fixme: debug
+    for(let i = 0; i < 8; i++) {
+        let value = pseudoRandom.modn(256)
+        pseudoRandom = pseudoRandom.divn(256)
 
-    child.stars = totalStars
-    child.tier = tier
-    child.originalArr = originalArr
+        /*
+           childPersonality[i] = genProb[f1Personality[i]][f2Personality[i]] <
+                rValue
+                ? f1Personality[i]
+                : f2Personality[i];
+         */
+        const trait1 = fewman1.originalArr[i]
+        const trait2 = fewman2.originalArr[i]
+
+        originalArr.push(
+            GEN_PROB[trait1][trait2] < value ? trait1 : trait2
+        )
+    }
+
+    const child = decodePersonality(newTokenId, originalArr, '', generation + 1)
 
     return {child, needGold, outGold, reason}
-
-    /*
-        const traitDesc = TRAIT_MAP[index]
-
-        const stars = VALUE_TO_STARS[traitValue]
-        totalStars += stars
-        tier = Math.max(tier, stars)
-
-        const traitValueStr = traitDesc.values[+traitValue]
-        fewman.traits[traitDesc.name] = [traitValueStr, stars]
-        fewman.p.push(traitValueStr, stars)
-     */
 }
 
 

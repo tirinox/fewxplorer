@@ -1,5 +1,7 @@
 <template>
     <h1>Breed Emulator</h1>
+    <p>This is ALPHA version. There is no guarantee that the result will be correct</p>
+    <hr>
     <div class="row m-1">
         <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
             <div class="mb-2">
@@ -41,7 +43,7 @@
                 and you will get <strong> {{ outGold }} 👑 FEWGO</strong> after breeding.
             </div>
             <div>
-                ⚠️ Both parent Fewmans will die...
+                ⚠️ Both parent Fewmans will disappear...
             </div>
         </div>
         <div class="col-auto mb-4" v-else>
