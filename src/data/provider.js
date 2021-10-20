@@ -5,8 +5,9 @@ import {breed, decodePersonality} from "./personality";
 const PRICE_API_URL = 'https://fewmans.xyz/fewpi/opensea/'
 const TOKEN_ID_API_URL = 'https://fewmans.xyz/fewpi/tokenids/'
 
-const UPDATE_TIME_SECONDS = 60
-// const UPDATE_TIME_SECONDS = 60 * 60 * 24 * 30  // fixme: debug
+const TEST = false // fixme
+
+const UPDATE_TIME_SECONDS = TEST ? 9999999 : 60
 
 const MAX_MATCHES = 50
 
@@ -28,11 +29,17 @@ export class FewmanDBv2 {
         this.priceBestTS = 0
         this.priceWorstTS = 0
 
+        this._maxId = 0
+
         this.tokenIdLastTS = 0
     }
 
     get totalFewmans() {
         return this._tokensAsList.length
+    }
+
+    get nextId() {
+        return this._maxId + 1
     }
 
     findById(id) {
@@ -52,7 +59,11 @@ export class FewmanDBv2 {
     }
 
     rarityByStar(fewman) {
-        return this._countToPercent(this._counters[COUNTER_STARS][fewman.stars])
+        try {
+            return this._countToPercent(this._counters[COUNTER_STARS][fewman.stars])
+        } catch (e) {
+            return 0.0
+        }
     }
 
     rarityByGender(fewman) {
@@ -114,6 +125,8 @@ export class FewmanDBv2 {
     _parseTokenIds(tokenIdResults) {
         const data = tokenIdResults.db
 
+        this._maxId = 0
+
         this.tokenIdLastTS = +data.lastUpdatedTS
         this._counters = {}
 
@@ -125,6 +138,7 @@ export class FewmanDBv2 {
             const fewman = decodePersonality(ident, personalityStr, owner, generation)
             this._idToFewman[ident] = fewman
             this._tokensAsList.push(fewman)
+            this._maxId = Math.max(this._maxId, ident)
 
             // update stats
             this._incrementCounter(COUNTER_GENDER, fewman.gender)

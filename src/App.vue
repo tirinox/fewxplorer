@@ -1,9 +1,9 @@
 <script>
 import Explorer from './components/Explorer.vue'
 import mitt, {EVENTS} from "./helpers/mitt";
-import {FEWMANS_BREED_CONTRACT, FEWMANS_CONTRACT} from "./data/opensea";
 import {fewmanDB} from "./data/provider";
 import LoadView from "./components/LoadView.vue";
+import {FEWMANS_BREED_CONTRACT, FEWMANS_CONTRACT} from "./data/contract";
 
 export default {
     name: "App",
@@ -138,7 +138,7 @@ export default {
                     <strong>© 2021 FEW community.</strong> <br>
                         If you want, drop a FEW donations here:<br>
                     <small><i>0x44F7f2cE1A46Ca5C78D6C0701D192A613890c20E</i></small><br>
-                        <small>v.0.2.0</small>
+                        <small>v.0.2.1</small>
                     </span>
                     </div>
                 </div>

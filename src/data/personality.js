@@ -1,3 +1,6 @@
+import web3 from 'web3/dist/web3.min.js'
+
+
 export const TRAIT_MAP = {
     0: {
         name: 'Hair',
@@ -102,9 +105,9 @@ export const VALUE_TO_STARS = {
 
 function makeTraitStarDict() {
     const dic = {}
-    for(const item of Object.values(TRAIT_MAP)) {
+    for (const item of Object.values(TRAIT_MAP)) {
         const subDic = dic[item.name] = {}
-        for(const [code, string] of Object.entries(item.values)) {
+        for (const [code, string] of Object.entries(item.values)) {
             subDic[string] = VALUE_TO_STARS[code]
         }
     }
@@ -138,6 +141,7 @@ export function decodePersonality(tokenId, traitArr, owner, generation) {
         owner,
         generation,
         originalArr: traitArr,
+        dead: false,
     }
     let index = 0
     let totalStars = 0
@@ -199,4 +203,51 @@ export function breed(f1, f2) {
         gender: (Math.random() > 0.5 ? f1.gender : f2.gender),
         traits
     }
+}
+
+export const SEED = "We Like Fewmans"
+
+export function myKeccakBN(items) {
+    const coitusHash = web3.utils.keccak256(web3.utils.encodePacked(...items)) // returns string like "0x80..."
+    return new web3.utils.BN(coitusHash.slice(2), 16)
+}
+
+const PERS_GEN_PROBS = [3, 10, 40, 70];
+
+export function initialPersonalityArr(tokenNumber) {
+    tokenNumber = +tokenNumber
+
+    let personalityKey = myKeccakBN([
+        {type: 'uint16', value: tokenNumber},
+        {type: 'string', value: SEED}
+    ])
+
+    const res = [0, 0, 0, 0, 0, 0, 0, 0]
+
+    for (let p = 0; p < 8; p++) {
+        const pr = personalityKey.modn(100)
+
+        // prettier-ignore
+        res[p] = pr < PERS_GEN_PROBS[0] ? 1
+            : pr < PERS_GEN_PROBS[1] ? 2
+                : pr < PERS_GEN_PROBS[2] ? 3
+                    : pr < PERS_GEN_PROBS[3] ? 4
+                        : 5;
+        personalityKey = personalityKey.divn(100)
+    }
+
+    if (tokenNumber < 16) {
+        res[tokenNumber & 7] = 0;
+    }
+    return res
+}
+
+export function gen0fewman(id) {
+    id = +id
+    if(id < 0 || id > 9999) {
+        return null
+    }
+    const f = decodePersonality(id, initialPersonalityArr(id), null, 0)
+    f.dead = true
+    return f
 }

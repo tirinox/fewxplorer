@@ -76,7 +76,7 @@
             </div>
         </div>
         <div class="card-footer">
-            <a :href="linkOpenSea" target="_blank">
+            <a :href="linkOpenSea" target="_blank" v-if="!isTest">
                     <span v-if="price > 0">
                         <span v-if="buyNow" class="text-success">
                             Buy
@@ -88,7 +88,7 @@
                 <span v-else>OpenSea</span>
             </a>
 
-            <span v-if="!isChildNow">
+            <span v-if="!isChildNow && !dead">
                 ▪ <a :href="linkScan" target="_blank">Scan</a>
             </span>
 
@@ -96,12 +96,12 @@
                 ▪ <a @click="isChildNow = true">Child</a>
             </span>
 
-            <span v-if="!child">
+            <span v-if="!child && !dead && !isTest">
                 ▪
                 <router-link :to="'/match/' + fewman.id">Match</router-link>
             </span>
 
-            <span v-if="!hideBreeding && !isChildNow">
+            <span v-if="!hideBreeding && !isChildNow && !isTest">
                 ▪
                 <a @click="setF1">
                     <span v-if="globalF1 === fewman.id">✔️</span>F1
@@ -118,8 +118,8 @@
 <script>
 
 import {fewmanDB} from "../data/provider";
-import {FEWMANS_CONTRACT} from "../data/opensea";
 import useBreedingState from "../data/breed";
+import {FEWMANS_CONTRACT, FEWMANS_CONTRACT_TEST} from "../data/contract";
 
 const state = useBreedingState()
 
@@ -133,7 +133,7 @@ const RIGHT_NAMES = [
 
 export default {
     name: "FewmanCard",
-    props: ['fewman', 'child', 'hideBreeding'],
+    props: ['fewman', 'child', 'hideBreeding', 'dead', 'isTest'],
     data() {
         return {
             isChildNow: false,
@@ -157,11 +157,21 @@ export default {
         sourceFewman() {
             return this.isChildNow ? this.child : this.fewman
         },
+        contract() {
+            return this.isTest ? FEWMANS_CONTRACT_TEST : FEWMANS_CONTRACT;
+        },
         linkOpenSea() {
-            return `https://opensea.io/assets/${FEWMANS_CONTRACT}/${this.fewman.id}`
+            if(this.isTest) {
+                return null
+            }
+            return `https://opensea.io/assets/${this.contract}/${this.fewman.id}`
         },
         linkScan() {
-            return `https://etherscan.io/token/${FEWMANS_CONTRACT}?a=${this.fewman.id}`
+            if(this.isTest) {
+                return `https://ropsten.etherscan.io/token/${this.contract}?a=${this.fewman.id}`
+            } else {
+                return `https://etherscan.io/token/${this.contract}?a=${this.fewman.id}`
+            }
         },
         globalF1() {
             return state.f1TokenId.value

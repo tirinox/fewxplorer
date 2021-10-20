@@ -3,6 +3,7 @@ import Explorer from "./components/Explorer.vue";
 import Match from "./components/MatchPage.vue";
 import Rarity from "./components/RarityPage.vue";
 import BreedEmulatorPage from "./components/BreedEmulatorPage.vue";
+import TestFewiewer from "./components/TestFewiewer.vue";
 
 
 const routes = [
@@ -30,6 +31,13 @@ const routes = [
         path: "/breedem/:f1/:f2",
         name: "BreedEm2",
         component: BreedEmulatorPage,
+    },
+
+    // ------ test -----
+    {
+        path: "/rr/test-fewiewer/:infura",
+        name: "TestFewiewer",
+        component: TestFewiewer,
     },
 ];
 

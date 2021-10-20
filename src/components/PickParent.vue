@@ -1,6 +1,8 @@
 <template>
     <h5>{{ f }}: Choose a Fewman</h5>
-    <small>You can also pick him/her at the Explorer tab by pressing <strong>{{ f }}</strong> button.</small>
+    <small v-if="breedPicking">
+        You can also pick him/her at the Explorer tab by pressing <strong>{{ f }}</strong> button.
+    </small>
     <input type="text"
            ref="idInput"
            v-model="fewmanIdStr"
@@ -20,6 +22,11 @@ export default {
         return {
             fewmanIdStr: '',
             isError: false,
+        }
+    },
+    computed: {
+        breedPicking() {
+            return this.f === 'f1' || this.f === 'f2'
         }
     },
     methods: {

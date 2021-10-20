@@ -1,6 +1,6 @@
 <template>
     <h1>Breed Emulator</h1>
-    <p>This is ALPHA version. There is no guarantee that the result will be correct</p>
+    <p>This is ALPHA version. There is no guarantee that the result will be correct!</p>
     <hr>
     <div class="row m-1">
         <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
@@ -60,6 +60,7 @@ import {fewmanDB} from "../data/provider";
 import mitt from "../helpers/mitt";
 import PickParent from "./PickParent.vue";
 import useBreedingState from "../data/breed.js";
+import {gen0fewman, initialPersonalityArr} from "../data/personality";
 
 const breed = useBreedingState()
 
@@ -80,14 +81,23 @@ export default {
     mounted() {
         mitt.on('data_loaded', () => {
             this.magicFoo++
-            this.f1 = fewmanDB.findById(this.$route.params.f1)
-            this.f2 = fewmanDB.findById(this.$route.params.f2)
+            this.f1 = this.findOrImagine(this.$route.params.f1)
+            this.f2 = this.findOrImagine(this.$route.params.f2)
             this.updateChild()
         })
     },
     methods: {
+        findOrImagine(id) {
+            let f = fewmanDB.findById(id)
+            if(f) {
+                return f
+            } else {
+                return gen0fewman(id)
+            }
+        },
+
         updateChild() {
-            const {child, reason, needGold, outGold} = breed.breed(this.f1, this.f2)
+            const {child, reason, needGold, outGold} = breed.breed(this.f1, this.f2, fewmanDB.nextId)
             this.resultFewman = child
             this.whyReason = reason
             this.needGold = needGold
@@ -95,10 +105,11 @@ export default {
         },
 
         updateFew(value, f) {
+            const fewman = this.findOrImagine(value)
             if(f === 'F1') {
-                this.f1 = fewmanDB.findById(value)
+                this.f1 = fewman
             } else {
-                this.f2 = fewmanDB.findById(value)
+                this.f2 = fewman
             }
 
             this.updateChild()
