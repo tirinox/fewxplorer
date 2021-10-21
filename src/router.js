@@ -39,6 +39,11 @@ const routes = [
         name: "TestFewiewer",
         component: TestFewiewer,
     },
+    {
+        path: "/rr/test-fewiewer/:infura/:tokenIds",
+        name: "TestFewiewerTokens",
+        component: TestFewiewer,
+    },
 ];
 
 

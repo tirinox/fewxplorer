@@ -5,7 +5,9 @@
         <TestFewiewerCard
             @add-more="addCard"
             @remove-this="removeCard"
-            v-for="id in viewCards" :id="id"></TestFewiewerCard>
+            :token-id = "tokenId"
+            :id="id"
+            v-for="[id, tokenId] in viewCards"></TestFewiewerCard>
     </div>
 </template>
 
@@ -24,16 +26,25 @@ export default {
         }
     },
     methods: {
-        addCard() {
-            this.viewCards.push(this.currentId++)
+        addCard(tokenId) {
+            this.viewCards.push([this.currentId++, tokenId])
         },
         removeCard(idToRemove) {
-            this.viewCards = this.viewCards.filter((id) => (id !== idToRemove))
+            this.viewCards = this.viewCards.filter(([id, _]) => (id !== idToRemove))
         }
     },
     mounted() {
         setupInfura(this.$route.params.infura)
-        this.addCard()
+        if(this.$route.params.tokenIds) {
+            const ids = this.$route.params.tokenIds.split(',').map(s => parseInt(s.trim()))
+            console.log('test tokens ids: ', ids)
+            this.viewCards = []
+            for(let i = 0; i < ids.length; ++i) {
+                this.addCard(ids[i])
+            }
+        } else {
+            this.addCard()
+        }
     }
 }
 </script>

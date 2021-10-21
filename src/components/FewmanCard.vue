@@ -2,7 +2,7 @@
     <div class="card rect">
         <div
             class="price-tag"
-            v-if="price > 0"
+            v-if="!isTest && price > 0"
             :class="{'price-bid': !buyNow}"
         >
             <span>{{ price }}

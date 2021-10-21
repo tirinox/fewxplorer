@@ -31,7 +31,7 @@ import {decodePersonality} from "../data/personality";
 export default {
     name: "TestFewiewerCard",
     emits: ['add-more', 'remove-this'],
-    props: ['id'],
+    props: ['id', 'tokenId'],
     components: {PickParent, FewmanCard},
     data() {
         return {
@@ -58,6 +58,11 @@ export default {
             } finally {
                 this.loading = false
             }
+        }
+    },
+    mounted() {
+        if(this.tokenId !== undefined) {
+            this.updateFew(this.tokenId)
         }
     }
 }
