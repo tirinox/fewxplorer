@@ -1,8 +1,8 @@
 <template>
     <h1>Breed Emulator</h1>
-    <p>This is ALPHA version. There is no guarantee that the result will be correct!</p>
+    <p>Только члены тайного Ордена допущены в это Святилище!</p>
     <hr>
-    <div class="row m-1" v-if="!isMaintenance">
+    <div class="row m-1">
         <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
             <div class="mb-2">
                 <PickParent f="F1" @id-change="updateFew"></PickParent>
@@ -56,17 +56,15 @@
 </template>
 
 <script>
+
 import FewmanCard from "./FewmanCard.vue";
 import {fewmanDB} from "../data/provider";
-import mitt from "../helpers/mitt";
 import PickParent from "./PickParent.vue";
 import useBreedingState from "../data/breed.js";
 import {gen0fewman} from "../data/personality";
 import LoadView from "./LoadView.vue";
 
 const breed = useBreedingState()
-
-const MAINTENANCE = true // fixme!
 
 export default {
     name: "BreedEmulatorPage",
@@ -80,25 +78,21 @@ export default {
             whyReason: '',
             needGold: 0,
             outGold: 0,
-            isMaintenance: MAINTENCE
         }
     },
     mounted() {
-        mitt.on('data_loaded', () => {
-            this.magicFoo++
-            this.f1 = this.findOrImagine(this.$route.params.f1)
-            this.f2 = this.findOrImagine(this.$route.params.f2)
-            this.updateChild()
-        })
+        this.f1 = this.findOrImagine(this.$route.params.f1)
+        this.f2 = this.findOrImagine(this.$route.params.f2)
+        this.updateChild()
+    },
+    computed: {
+        nextId() {
+            return 0
+        }
     },
     methods: {
         findOrImagine(id) {
-            let f = fewmanDB.findById(id)
-            if (f) {
-                return f
-            } else {
-                return gen0fewman(id)
-            }
+            return null // todo!
         },
 
         updateChild() {
@@ -124,5 +118,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

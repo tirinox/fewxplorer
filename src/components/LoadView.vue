@@ -1,12 +1,16 @@
 <template>
     <div class="load">
-        <h4>Loading...</h4>
+        <h4>
+            <span class="spinner-grow"></span>
+            {{ text ?? 'Loading...' }}
+        </h4>
     </div>
 </template>
 
 <script>
 export default {
-    name: "LoadView"
+    name: "LoadView",
+    props: ['text'],
 }
 </script>
 

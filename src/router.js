@@ -4,6 +4,7 @@ import Match from "./components/MatchPage.vue";
 import Rarity from "./components/RarityPage.vue";
 import BreedEmulatorPage from "./components/BreedEmulatorPage.vue";
 import TestFewiewer from "./components/TestFewiewer.vue";
+import BreedEmulatorPageR from "./components/BreedEmulatorPageR.vue";
 
 
 const routes = [
@@ -29,7 +30,7 @@ const routes = [
     },
     {
         path: "/breedem/:f1/:f2",
-        name: "BreedEm2",
+        name: "BreedEmPre",
         component: BreedEmulatorPage,
     },
 
@@ -43,6 +44,16 @@ const routes = [
         path: "/rr/test-fewiewer/:infura/:tokenIds",
         name: "TestFewiewerTokens",
         component: TestFewiewer,
+    },
+    {
+        path: "/rr/breedem-v2/:infura",
+        name: "BreedEmV2",
+        component: BreedEmulatorPageR,
+    },
+    {
+        path: "/rr/breedem-v2/:infura/:f1/:f2",
+        name: "BreedEmV2Pre",
+        component: BreedEmulatorPageR,
     },
 ];
 

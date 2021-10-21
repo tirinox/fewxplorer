@@ -8,8 +8,14 @@ import TestBreedABI from './breeding.test.abi.json'
 import TestFewmanABI from './fewman.test.abi.json'
 
 
-export function getInfuraWeb3(projectToken) {
-    return new Web3(`https://ropsten.infura.io/v3/${projectToken}`)
+export function getInfuraWeb3(projectToken, test) {
+    let url = ''
+    if(test) {
+        url = `https://ropsten.infura.io/v3/${projectToken}`
+    } else {
+        url = `https://mainnet.infura.io/v3/${projectToken}`
+    }
+    return new Web3(url)
 }
 
 
@@ -58,24 +64,37 @@ export class FewmanBreedContract {
 }
 
 const defaultWeb3 = getInfuraWeb3('')
+const defaultWeb3Test = getInfuraWeb3('', true)
+
 const holder = {
     web3: defaultWeb3,
-    fewmansTestContract: new FewmanContract(defaultWeb3),
-    fewmansBreedTestContract: new FewmanBreedContract(defaultWeb3)
+    testWeb3: defaultWeb3Test,
+
+    test: {
+        fewmansContract: new FewmanContract(defaultWeb3Test),
+        breedContract: new FewmanContract(defaultWeb3Test)
+    },
+
+    live: {
+        fewmansContract: new FewmanContract(defaultWeb3),
+        breedContract: new FewmanContract(defaultWeb3)
+    }
 }
 
 export function setupInfura(projectId) {
     holder.web3 = getInfuraWeb3(projectId)
-    holder.fewmansTestContract = new FewmanContract(holder.web3)
-    holder.fewmansBreedTestContract = new FewmanBreedContract(holder.web3)
+    holder.testWeb3 = getInfuraWeb3(projectId, true)
+
+    holder.test.fewmansContract = new FewmanContract(holder.testWeb3)
+    holder.test.breedContract = new FewmanBreedContract(holder.testWeb3)
+
+    holder.live.fewmansContract = new FewmanContract(holder.web3)
+    holder.live.breedContract = new FewmanBreedContract(holder.web3)
+
     return holder
 }
 
-export function fewmansTestContract() {
-    return holder.fewmansTestContract
-}
-
-export function fewmansBreedTestContract() {
-    return holder.fewmansBreedTestContract
+export function fewmansContracts(test) {
+    return test ? holder.test : holder.live
 }
 

@@ -24,7 +24,6 @@
 <script>
 import PickParent from "./PickParent.vue";
 import FewmanCard from "./FewmanCard.vue";
-import {FewmanBreedContract, FewmanContract, fewmansBreedTestContract, fewmansTestContract} from "../data/contract";
 import {decodePersonality} from "../data/personality";
 
 
@@ -46,10 +45,10 @@ export default {
             this.fewman = null
             this.error = false
             try {
-                const fewContract = fewmansTestContract()
-                const breedContract = fewmansBreedTestContract()
-                const owner = await fewContract.getOwnerOf(tokenId)
-                const personality = await fewContract.getPersonality(tokenId)
+                const {fewmansContract, breedContract} = fewmansContract(true)
+
+                const owner = await fewmansContract.getOwnerOf(tokenId)
+                const personality = await fewmansContract.getPersonality(tokenId)
                 const gen = await breedContract.getGeneration(tokenId)
                 console.log(tokenId, personality, gen, owner)
                 this.fewman = decodePersonality(tokenId, personality, owner, gen)
@@ -61,7 +60,7 @@ export default {
         }
     },
     mounted() {
-        if(this.tokenId !== undefined) {
+        if (this.tokenId !== undefined) {
             this.updateFew(this.tokenId)
         }
     }
