@@ -63,10 +63,9 @@ import PickParent from "./PickParent.vue";
 import useBreedingState from "../data/breed.js";
 import {gen0fewman} from "../data/personality";
 import LoadView from "./LoadView.vue";
+import {Config} from "../data/config";
 
 const breed = useBreedingState()
-
-const MAINTENANCE = true // fixme!
 
 export default {
     name: "BreedEmulatorPage",
@@ -80,7 +79,7 @@ export default {
             whyReason: '',
             needGold: 0,
             outGold: 0,
-            isMaintenance: MAINTENANCE
+            isMaintenance: Config.BREED_MAINTENANCE
         }
     },
     mounted() {

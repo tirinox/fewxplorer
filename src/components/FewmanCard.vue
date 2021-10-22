@@ -119,7 +119,8 @@
 
 import {fewmanDB} from "../data/provider";
 import useBreedingState from "../data/breed";
-import {FEWMANS_CONTRACT, FEWMANS_CONTRACT_TEST} from "../data/contract";
+import {Config} from "../data/config";
+
 
 const state = useBreedingState()
 
@@ -158,7 +159,7 @@ export default {
             return this.isChildNow ? this.child : this.fewman
         },
         contract() {
-            return this.isTest ? FEWMANS_CONTRACT_TEST : FEWMANS_CONTRACT;
+            return this.isTest ? Config.FEWMANS_CONTRACT_TEST : Config.FEWMANS_CONTRACT;
         },
         linkOpenSea() {
             if(this.isTest) {

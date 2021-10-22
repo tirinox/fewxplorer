@@ -3,7 +3,8 @@ import Explorer from './components/Explorer.vue'
 import mitt, {EVENTS} from "./helpers/mitt";
 import {fewmanDB} from "./data/provider";
 import LoadView from "./components/LoadView.vue";
-import {FEWMANS_BREED_CONTRACT, FEWMANS_CONTRACT} from "./data/contract";
+import {Config} from "./data/config";
+import {setupInfura} from "./data/contract";
 
 export default {
     name: "App",
@@ -44,13 +45,13 @@ export default {
     },
     computed: {
         linkHolders() {
-            return `https://etherscan.io/token/${FEWMANS_CONTRACT}#balances`
+            return `https://etherscan.io/token/${Config.FEWMANS_CONTRACT}#balances`
         },
         linkContract() {
-            return `https://etherscan.io/address/${FEWMANS_CONTRACT}`
+            return `https://etherscan.io/address/${Config.FEWMANS_CONTRACT}`
         },
         linkBreed() {
-            return `https://etherscan.io/address/${FEWMANS_BREED_CONTRACT}#writeContract`
+            return `https://etherscan.io/address/${Config.FEWMANS_BREED_CONTRACT}#writeContract`
         },
     },
     watch: {

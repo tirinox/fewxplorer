@@ -5,10 +5,8 @@ import mitt, {EVENTS} from "../helpers/mitt";
 import HelpModal from "./HelpModal.vue";
 import {isBottom, isNormalInteger} from "../helpers/util";
 import {semanticSearch} from "../data/search";
+import {Config} from "../data/config";
 
-
-const MAX_TIER = 3
-const MAX_STARS = 12
 
 export default {
     components: {HelpModal, FewmanCard},
@@ -145,10 +143,10 @@ export default {
                 {value: 'male', caption: 'Male'},
                 {value: 'female', caption: 'Female'},
             ]
-            for (let i = 0; i <= MAX_TIER; ++i) {
+            for (let i = 0; i <= Config.MAX_TIER; ++i) {
                 arr.push({value: `tier ${i}`, caption: `t${i}`})
             }
-            for (let i = 0; i <= MAX_STARS; ++i) {
+            for (let i = 0; i <= Config.MAX_STARS; ++i) {
                 arr.push({value: `star ${i}`, caption: `⭐${i}`})
             }
             return arr

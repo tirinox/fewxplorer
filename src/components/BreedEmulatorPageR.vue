@@ -1,6 +1,8 @@
 <template>
     <h1>Breed Emulator V2</h1>
-    <p>Только члены тайного Ордена допущены в это Святилище!</p>
+    <em>Только члены тайного Ордена допущены в это Святилище!</em>
+    <hr>
+    <FewvulationBlock></FewvulationBlock>
     <hr>
     <div class="row m-1">
         <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
@@ -62,38 +64,45 @@ import useBreedingState from "../data/breed.js";
 import {gen0fewman} from "../data/personality";
 import LoadView from "./LoadView.vue";
 import {loadFewmanFromContractsById, setupInfura} from "../data/contract";
+import {Config} from "../data/config";
+import FewvulationBlock from "./FewvulationBlock.vue";
 
 const breed = useBreedingState()
 
 export default {
     name: "BreedEmulatorPageV2",
-    components: {LoadView, PickParent, FewmanCard},
+    components: {FewvulationBlock, LoadView, PickParent, FewmanCard},
     data() {
         return {
             f1: {
                 fewman: null,
                 loading: false,
                 error: false,
+                tokenId: -1,
             },
             f2: {
                 fewman: null,
                 loading: false,
                 error: false,
+                tokenId: -1,
             },
             resultFewman: null,
             whyReason: '',
             needGold: 0,
             outGold: 0,
             autoUpdaterTimer: null,
-            autoUpdatePeriod: 2000,
         }
     },
-    mounted() {
+    beforeMount() {
         setupInfura(this.$route.params.infura)
+    },
+    mounted() {
         this.loadFewmansFromRoute().then(() => {})
-        if(this.autoUpdatePeriod) {
-            console.log(`BreedEmulatorPageV2: Set up timer for update: ${this.autoUpdatePeriod} ms.`)
-            this.autoUpdaterTimer = setInterval(this.autoUpdate, this.autoUpdatePeriod)
+        if(Config.AUTO_UPDATE_TIME) {
+            console.log(`BreedEmulatorPageV2: Set up timer for update: ${Config.AUTO_UPDATE_TIME} ms.`)
+            this.autoUpdaterTimer = setInterval(() => {
+                this.autoUpdate().then(() => {})
+            }, Config.AUTO_UPDATE_TIME)
         }
     },
     computed: {
@@ -112,6 +121,7 @@ export default {
             const fewSide = f === 'F1' ? this.f1 : this.f2
             fewSide.loading = true
             fewSide.error = false
+            fewSide.tokenId = id
 
             const result = await loadFewmanFromContractsById(id, false)
 
@@ -133,9 +143,17 @@ export default {
         },
 
         async updateFew(value, f) {
-            console.log(value, f)
             await this.loadFewman(value, f)
             this.updateChild()
+        },
+
+        async autoUpdate() {
+            if(!this.f1.fewman && this.f1.tokenId !== -1) {
+                await this.loadFewman(this.f1.tokenId, 'F1')
+            }
+            if(!this.f2.fewman && this.f2.tokenId !== -1) {
+                await this.loadFewman(this.f2.tokenId, 'F2')
+            }
         }
     },
     unmounted() {

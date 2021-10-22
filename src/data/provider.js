@@ -1,15 +1,11 @@
 import axios from "axios";
 import {agoTS, compare, nowTS, wait} from "../helpers/util.js";
 import {breed, decodePersonality} from "./personality";
+import {Config} from "./config";
 
 const PRICE_API_URL = 'https://fewmans.xyz/fewpi/opensea/'
 const TOKEN_ID_API_URL = 'https://fewmans.xyz/fewpi/tokenids/'
 
-const TEST = false // fixme
-
-const UPDATE_TIME_SECONDS = TEST ? 9999999 : 60
-
-const MAX_MATCHES = 50
 
 export const COUNTER_STARS = '_stars'
 export const COUNTER_TIER = '_tier'
@@ -75,7 +71,7 @@ export class FewmanDBv2 {
     }
 
     get isItTimeToUpdate() {
-        return nowTS() - this.lastTimeLoaded > UPDATE_TIME_SECONDS
+        return nowTS() - this.lastTimeLoaded > Config.DB_REFRESH_TIME
     }
 
     async updateIfNeeded() {
@@ -109,7 +105,7 @@ export class FewmanDBv2 {
             }
         }
         results.sort((a, b) => b.result.stars - a.result.stars)
-        return results.slice(0, MAX_MATCHES)
+        return results.slice(0, Config.MAX_MATCHES)
     }
 
     // Private:

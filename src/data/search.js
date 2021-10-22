@@ -1,7 +1,6 @@
 import {isNormalInteger} from "../helpers/util";
 import {fewmanDB} from "./provider";
-
-const BATCH_SIZE = 42
+import {Config} from "./config";
 
 function makeError(i) {
     return {
@@ -169,12 +168,12 @@ export function semanticSearch(q, startIndex) {
         if (isGood(el)) {
             thisBatch.push(el)
         }
-        if (thisBatch.length >= BATCH_SIZE) {
+        if (thisBatch.length >= Config.SEARCH_BATCH_SIZE) {
             break
         }
     }
 
-    const allLoaded = thisBatch.length < BATCH_SIZE
+    const allLoaded = thisBatch.length < Config.SEARCH_BATCH_SIZE
 
     return {
         batch: thisBatch,
