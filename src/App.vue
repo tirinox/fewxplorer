@@ -71,7 +71,7 @@ export default {
 </script>
 
 <template>
-    <div class="container-fluid min-height-full">
+    <div class="container-fluid min-vh-100">
         <LoadView v-if="loading"></LoadView>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
@@ -151,12 +151,13 @@ export default {
 
 html, body {
     font-family: 'Press Start 2P', sans-serif;
-    height: 100%;
+    height: 100% !important;
+    min-height: 100vh !important;
 }
 
-.min-height-full {
-    height: auto !important; /* real browsers */
-    min-height: 100%; /* real browsers */
+#app {
+    height: 100% !important;
+    min-height: 100vh !important;
 }
 
 .navbar a {
@@ -179,6 +180,7 @@ a:hover {
 
 body {
     background: #F9FBFC !important;
+    min-height: 100vh;
 }
 
 h1, h2, h3, h4, h5, h6, button {

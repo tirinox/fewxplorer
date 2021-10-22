@@ -1,13 +1,13 @@
 <template>
-    <h1>Breed Emulator</h1>
+    <h1>Breed Emulator V2</h1>
     <p>Только члены тайного Ордена допущены в это Святилище!</p>
     <hr>
     <div class="row m-1">
         <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
             <div class="mb-2">
-                <PickParent f="F1" @id-change="updateFew"></PickParent>
+                <PickParent f="F1" @id-change="updateFew" :loading="f1.loading" :is-error="f1.error"></PickParent>
             </div>
-            <FewmanCard :fewman="f1" v-if="!!f1" hide-breeding="1"></FewmanCard>
+            <FewmanCard :fewman="f1.fewman" v-if="!!f1.fewman" hide-breeding="1"></FewmanCard>
             <div v-else class="text-danger">Not found...</div>
         </div>
 
@@ -17,10 +17,10 @@
 
         <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
             <div class="mb-2">
-                <PickParent f="F2" @id-change="updateFew"></PickParent>
+                <PickParent f="F2" @id-change="updateFew" :loading="f2.loading" :is-error="f2.error"></PickParent>
             </div>
 
-            <FewmanCard :fewman="f2" v-if="!!f2" hide-breeding="1"></FewmanCard>
+            <FewmanCard :fewman="f2.fewman" v-if="!!f2.fewman" hide-breeding="1"></FewmanCard>
             <div v-else class="text-danger">Not found...</div>
         </div>
 
@@ -51,8 +51,6 @@
             <strong class="text-danger">{{ whyReason }}</strong>
         </div>
     </div>
-    <LoadView v-else text="The Fewmans Database is updating... Please wait patiently."></LoadView>
-
 </template>
 
 <script>
@@ -63,27 +61,40 @@ import PickParent from "./PickParent.vue";
 import useBreedingState from "../data/breed.js";
 import {gen0fewman} from "../data/personality";
 import LoadView from "./LoadView.vue";
+import {loadFewmanFromContractsById, setupInfura} from "../data/contract";
 
 const breed = useBreedingState()
 
 export default {
-    name: "BreedEmulatorPage",
+    name: "BreedEmulatorPageV2",
     components: {LoadView, PickParent, FewmanCard},
     data() {
         return {
-            magicFoo: 0,
-            f1: null,
-            f2: null,
+            f1: {
+                fewman: null,
+                loading: false,
+                error: false,
+            },
+            f2: {
+                fewman: null,
+                loading: false,
+                error: false,
+            },
             resultFewman: null,
             whyReason: '',
             needGold: 0,
             outGold: 0,
+            autoUpdaterTimer: null,
+            autoUpdatePeriod: 2000,
         }
     },
     mounted() {
-        this.f1 = this.findOrImagine(this.$route.params.f1)
-        this.f2 = this.findOrImagine(this.$route.params.f2)
-        this.updateChild()
+        setupInfura(this.$route.params.infura)
+        this.loadFewmansFromRoute().then(() => {})
+        if(this.autoUpdatePeriod) {
+            console.log(`BreedEmulatorPageV2: Set up timer for update: ${this.autoUpdatePeriod} ms.`)
+            this.autoUpdaterTimer = setInterval(this.autoUpdate, this.autoUpdatePeriod)
+        }
     },
     computed: {
         nextId() {
@@ -91,27 +102,47 @@ export default {
         }
     },
     methods: {
-        findOrImagine(id) {
-            return null // todo!
+        async loadFewmansFromRoute() {
+            await this.loadFewman(this.$route.params.f1, 'F1')
+            await this.loadFewman(this.$route.params.f2, 'F2')
+            this.updateChild()
+        },
+
+        async loadFewman(id, f) {
+            const fewSide = f === 'F1' ? this.f1 : this.f2
+            fewSide.loading = true
+            fewSide.error = false
+
+            const result = await loadFewmanFromContractsById(id, false)
+
+            if(!result.error) {
+                fewSide.fewman = result
+            } else {
+                fewSide.fewman = null
+                fewSide.error = true
+            }
+            fewSide.loading = false
         },
 
         updateChild() {
-            const {child, reason, needGold, outGold} = breed.breed(this.f1, this.f2, fewmanDB.nextId)
+            const {child, reason, needGold, outGold} = breed.breed(this.f1.fewman, this.f2.fewman, fewmanDB.nextId)
             this.resultFewman = child
             this.whyReason = reason
             this.needGold = needGold
             this.outGold = outGold
         },
 
-        updateFew(value, f) {
-            const fewman = this.findOrImagine(value)
-            if (f === 'F1') {
-                this.f1 = fewman
-            } else {
-                this.f2 = fewman
-            }
-
+        async updateFew(value, f) {
+            console.log(value, f)
+            await this.loadFewman(value, f)
             this.updateChild()
+        }
+    },
+    unmounted() {
+        if(this.autoUpdaterTimer !== null) {
+            clearInterval(this.autoUpdaterTimer)
+            console.log('BreedEmulatorPageV2: Cleared auto update timer.')
+            this.autoUpdaterTimer = null
         }
     }
 }

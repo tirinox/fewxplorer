@@ -96,10 +96,10 @@
                 ▪ <a @click="isChildNow = true">Child</a>
             </span>
 
-            <span v-if="!child && !dead && !isTest">
-                ▪
-                <router-link :to="'/match/' + fewman.id">Match</router-link>
-            </span>
+<!--            <span v-if="!child && !dead && !isTest">-->
+<!--                ▪-->
+<!--                <router-link :to="'/match/' + fewman.id">Match</router-link>-->
+<!--            </span>-->
 
             <span v-if="!hideBreeding && !isChildNow && !isTest">
                 ▪

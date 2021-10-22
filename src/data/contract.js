@@ -1,3 +1,5 @@
+import {decodePersonality} from "./personality";
+
 export const FEWMANS_CONTRACT = '0xad5f6cdda157694439ef9f6dd409424321c74628'
 export const FEWMANS_BREED_CONTRACT = '0x7977eb2Ba4bE7CC4Bb747baF2eE9177CAdc96a02'
 export const FEWMANS_CONTRACT_TEST = '0xB1E8EBA3613e0195eAA96792c5fc545Cb7f7EFF6'
@@ -6,11 +8,14 @@ import Web3 from 'web3/dist/web3.min.js'
 
 import TestBreedABI from './breeding.test.abi.json'
 import TestFewmanABI from './fewman.test.abi.json'
+import LiveBreedABI from './breeding.abi.json'
+import LiveFewmanABI from './fewman.abi.json'
+import {nowTS} from "../helpers/util";
 
 
 export function getInfuraWeb3(projectToken, test) {
     let url = ''
-    if(test) {
+    if (test) {
         url = `https://ropsten.infura.io/v3/${projectToken}`
     } else {
         url = `https://mainnet.infura.io/v3/${projectToken}`
@@ -61,6 +66,14 @@ export class FewmanBreedContract {
             return await this.contract.methods.generation(tokenId).call()
         }
     }
+
+    async getFewvulationDuration() {
+        return +(await this.contract.methods.fewvulationDuration(tokenId).call())
+    }
+
+    async getNextFewvulation() {
+        return +(await this.contract.methods.nextFewvulation(tokenId).call())
+    }
 }
 
 const defaultWeb3 = getInfuraWeb3('')
@@ -72,12 +85,12 @@ const holder = {
 
     test: {
         fewmansContract: new FewmanContract(defaultWeb3Test),
-        breedContract: new FewmanContract(defaultWeb3Test)
+        breedContract: new FewmanBreedContract(defaultWeb3Test)
     },
 
     live: {
         fewmansContract: new FewmanContract(defaultWeb3),
-        breedContract: new FewmanContract(defaultWeb3)
+        breedContract: new FewmanBreedContract(defaultWeb3)
     }
 }
 
@@ -85,16 +98,75 @@ export function setupInfura(projectId) {
     holder.web3 = getInfuraWeb3(projectId)
     holder.testWeb3 = getInfuraWeb3(projectId, true)
 
-    holder.test.fewmansContract = new FewmanContract(holder.testWeb3)
-    holder.test.breedContract = new FewmanBreedContract(holder.testWeb3)
+    holder.test.fewmansContract = new FewmanContract(holder.testWeb3, FEWMANS_CONTRACT_TEST, TestFewmanABI)
+    holder.test.breedContract = new FewmanBreedContract(holder.testWeb3, FEWMANS_BREED_CONTRACT_TEST, TestBreedABI)
 
-    holder.live.fewmansContract = new FewmanContract(holder.web3)
-    holder.live.breedContract = new FewmanBreedContract(holder.web3)
+    holder.live.fewmansContract = new FewmanContract(holder.web3, FEWMANS_CONTRACT, LiveFewmanABI)
+    holder.live.breedContract = new FewmanBreedContract(holder.web3, FEWMANS_BREED_CONTRACT, LiveBreedABI)
 
     return holder
 }
 
-export function fewmansContracts(test) {
+export function getFewmansContracts(test) {
     return test ? holder.test : holder.live
 }
 
+export async function loadFewmanFromContractsById(tokenId, isTestnet) {
+    try {
+        if (tokenId === null || tokenId === '' || tokenId === undefined) {
+            return {error: 'no token id'}
+        }
+        isTestnet = isTestnet || false
+        const {fewmansContract, breedContract} = getFewmansContracts(isTestnet)
+
+        const owner = await fewmansContract.getOwnerOf(tokenId)
+        const personality = await fewmansContract.getPersonality(tokenId)
+        const gen = await breedContract.getGeneration(tokenId)
+        console.log(tokenId, personality, gen, owner)
+        return decodePersonality(tokenId, personality, owner, gen)
+    } catch (e) {
+        return {error: e}
+    }
+}
+
+export async function loadLastGeneratedTokenId(isTestnet) {
+    try {
+        isTestnet = isTestnet || false
+        const {fewmansContract, breedContract} = getFewmansContracts(isTestnet)
+
+        const supply = await fewmansContract.readTotalSupply()
+        return await fewmansContract.getTokenByIndex(+supply - 1)
+    } catch (e) {
+        return {error: e}
+    }
+}
+
+export async function loadFewvulationState(isTestnet) {
+    try {
+        isTestnet = isTestnet || false
+        const {fewmansContract, breedContract} = getFewmansContracts(isTestnet)
+
+        const duration = await breedContract.getFewvulationDuration()
+        const nextFewvulation = await breedContract.getNextFewvulation()
+
+        const now = nowTS()
+        let state = 'finished'
+        let secondsToNextEvent = 0
+        if(now < nextFewvulation) {
+            state = 'soon'
+            secondsToNextEvent = nextFewvulation - now
+        } else if(now < nextFewvulation + duration) {
+            state = 'active'
+            secondsToNextEvent = nextFewvulation + duration - now
+        }
+
+        return {
+            duration,
+            nextFewvulation,
+            state,
+            secondsToNextEvent,
+        }
+    } catch (e) {
+        return {error: e}
+    }
+}

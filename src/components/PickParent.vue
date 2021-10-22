@@ -1,4 +1,5 @@
 <template>
+    <div class="spinner-grow" v-if="loading"></div>
     <h5>{{ f }}: Choose a Fewman</h5>
     <small v-if="breedPicking">
         You can also pick him/her at the Explorer tab by pressing <strong>{{ f }}</strong> button.
@@ -6,7 +7,7 @@
     <input type="text"
            ref="idInput"
            v-model="fewmanIdStr"
-           v-debounce.lock:450="doSearch"
+           v-debounce.lock:800="doSearch"
            :class="{'is-invalid': isError}"
            placeholder="Enter Token ID..."
            class="form-control rect"
@@ -16,26 +17,37 @@
 <script>
 export default {
     name: "PickParent",
-    props: ['f'],
+    props: ['f', 'isError', 'loading'],
     emits: ['id-change'],
     data() {
         return {
             fewmanIdStr: '',
-            isError: false,
+            prevIdStr: '',
         }
     },
     computed: {
         breedPicking() {
-            return this.f === 'f1' || this.f === 'f2'
+            return this.f === 'F1' || this.f === 'F2'
         }
     },
     methods: {
-        doSearch() {
+        emitChange() {
+            if(this.fewmanIdStr === this.prevIdStr) {
+                return
+            } else {
+                this.prevIdStr = this.fewmanIdStr
+            }
             let id = null
             try {
                 id = parseInt(this.fewmanIdStr)
+                this.$emit('id-change', id, this.f)
             } catch {}
-            this.$emit('id-change', id, this.f)
+        },
+        doSearch() {
+            this.emitChange()
+        },
+        autoUpdate() {
+            this.emitChange()
         }
     }
 }

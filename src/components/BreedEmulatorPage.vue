@@ -80,7 +80,7 @@ export default {
             whyReason: '',
             needGold: 0,
             outGold: 0,
-            isMaintenance: MAINTENCE
+            isMaintenance: MAINTENANCE
         }
     },
     mounted() {

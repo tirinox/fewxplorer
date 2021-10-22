@@ -1,12 +1,11 @@
 <template>
     <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
         <div class="mb-2">
-            <div class="spinner-grow" v-if="loading"></div>
             <div class="float-end mb-2">
                 <button class="btn btn-sm btn-primary" @click="$emit('add-more')">+</button>
                 <button class="btn btn-sm btn-danger" @click="$emit('remove-this', this.id)" v-if="id !== 0">x</button>
             </div>
-            <PickParent :f="`(${id}) Test`" @id-change="updateFew"></PickParent>
+            <PickParent :f="`(${id}) Test`" @id-change="updateFew" :loading="loading"></PickParent>
         </div>
         <FewmanCard
             :fewman="fewman"
@@ -24,7 +23,7 @@
 <script>
 import PickParent from "./PickParent.vue";
 import FewmanCard from "./FewmanCard.vue";
-import {decodePersonality} from "../data/personality";
+import {loadFewmanFromContractsById} from "../data/contract";
 
 
 export default {
@@ -44,19 +43,14 @@ export default {
             this.loading = true
             this.fewman = null
             this.error = false
-            try {
-                const {fewmansContract, breedContract} = fewmansContract(true)
 
-                const owner = await fewmansContract.getOwnerOf(tokenId)
-                const personality = await fewmansContract.getPersonality(tokenId)
-                const gen = await breedContract.getGeneration(tokenId)
-                console.log(tokenId, personality, gen, owner)
-                this.fewman = decodePersonality(tokenId, personality, owner, gen)
-            } catch (e) {
-                this.error = e.toString()
-            } finally {
-                this.loading = false
+            const result = await loadFewmanFromContractsById(tokenId, true)
+            if(result.error) {
+                this.error = result.error.toString()
+            } else {
+                this.fewman = result
             }
+            this.loading = false
         }
     },
     mounted() {
@@ -68,5 +62,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

@@ -5,6 +5,7 @@ import Rarity from "./components/RarityPage.vue";
 import BreedEmulatorPage from "./components/BreedEmulatorPage.vue";
 import TestFewiewer from "./components/TestFewiewer.vue";
 import BreedEmulatorPageR from "./components/BreedEmulatorPageR.vue";
+import NotFoundPage from "./components/NotFoundPage.vue";
 
 
 const routes = [
@@ -55,6 +56,10 @@ const routes = [
         name: "BreedEmV2Pre",
         component: BreedEmulatorPageR,
     },
+
+    // ----- 404 ---
+    { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundPage },
+    { path: '/:pathMatch(.*)', name: 'bad-not-found', component: NotFoundPage },
 ];
 
 
