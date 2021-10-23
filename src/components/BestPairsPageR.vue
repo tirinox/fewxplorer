@@ -39,24 +39,19 @@
 
     <div v-if="isFavoriteSelected" class="m-1 mt-4">
         <hr>
-        <h5 class="p-1">Вы выбрали этого как F1:</h5>
 
-        <div class="row">
-            <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
-                <FewmanCardAutoLoad :token-id="f1Id"></FewmanCardAutoLoad>
-                <button class="btn btn-warning rect center mt-3" @click="clearF1">
-                    <strong>Выбрать другого?</strong>
-                </button>
-            </div>
-            <div class="col-auto d-flex flex-column justify-content-center align-items-center">
-                <h2>+</h2>
-            </div>
+        <div>
+            <h5 class="p-1">Вы выбрали этого как F1: #{{ f1Id }}</h5>
+            <button class="btn btn-warning rect center" @click="clearF1">
+                <strong>Выбрать другого?</strong>
+            </button>
         </div>
+
         <hr>
         <h5>Лучшие пары:</h5>
-        <div class="row" v-for="[f1Fewmans, f2Fewman, child] in pairFewmans">
+        <div class="row" v-for="{f1Fewman, f2Fewman, child} of pairFewmans">
             <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
-                <FewmanCard :fewman="f1Fewmans" :hide-breeding="true"></FewmanCard>
+                <FewmanCard :fewman="f1Fewman" :hide-breeding="true"></FewmanCard>
             </div>
             <div class="col-auto d-flex flex-column justify-content-center align-items-center">
                 <h2>+</h2>
@@ -167,10 +162,13 @@ export default {
 
                 const {child, reason, needGold, outGold} = breedState.breed(f1Fewman, f2Fewman, fewmanDB.nextId)
                 if(child) {
-                    this.pairFewmans.push([f1Fewman, f2Fewman, child])
+                    this.pairFewmans.push({f1Fewman, f2Fewman, child})
                 }
-                console.log(reason)
             }
+            this.pairFewmans.sort(function(a, b) {
+                return b.child.stars - a.child.stars
+            })
+            console.info(this.pairFewmans)
         }
     },
     mounted() {

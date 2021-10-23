@@ -64,7 +64,7 @@
         <div class="card-footer footer-2">
             <div class="total float-end">
                 <div v-if="sourceFewman.stars > 0">
-                    Total {{ sourceFewman.stars }}<img alt="star" src="/img/star.png" class="star">
+                    <strong>Total {{ sourceFewman.stars }}<img alt="star" src="/img/star.png" class="star"></strong>
                 </div>
                 <div v-else>
                     Common
