@@ -62,6 +62,7 @@ import {agoTS, nowTS} from "../helpers/util";
 export default {
     name: "FewvulationBlock",
     props: ['isTestnet'],
+    emits: ['updateNextId'],
     data() {
         return {
             timer: null,
@@ -126,6 +127,8 @@ export default {
             } else {
                 this.nextTokenId = (lastId + 1)
             }
+
+            this.$emit('updateNextId', this.nextTokenId)
 
             console.log(lastId)
 

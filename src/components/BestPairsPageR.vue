@@ -2,6 +2,11 @@
     <h1>Best Pairs Calc</h1>
     <em>Только члены тайного Ордена допущены в это Святилище!</em>
     <p>Этот инструмент подберет лучшие пары из вашего адреса.</p>
+
+    <hr>
+
+    <FewvulationBlock :is-testnet="false" @update-next-id="updateNextId"></FewvulationBlock>
+
     <hr>
 
     <div>
@@ -29,7 +34,7 @@
         <div class="row m-1 mt-4">
 
             <div class="col-xl-4 col-lg-4 col-md-6 mb-4" v-for="tokenId in tokenIds" :key="tokenId">
-                <FewmanCardAutoLoad :token-id="tokenId" @setF1="setF1"></FewmanCardAutoLoad>
+                <FewmanCardAutoLoad :token-id="tokenId" @setF1="setF1" @loaded="loadedFew"></FewmanCardAutoLoad>
             </div>
             <div class="text-center" v-if="!tokenIds.length">
                 <h2 class="m-4">На этом адресе нет Fewmans.</h2>
@@ -80,6 +85,7 @@ import FewmanCardAutoLoad from "./FewmanCardAutoLoad.vue";
 import {setupInfura} from "../data/contract";
 import useBreedingState from "../data/breed";
 import FewmanCard from "./FewmanCard.vue";
+import FewvulationBlock from "./FewvulationBlock.vue";
 
 const breedState = useBreedingState()
 
@@ -87,7 +93,7 @@ const LS_ADDRESS_KEY = 'BestPairsPageR-add'
 
 export default {
     name: "BestPairsPageR",
-    components: {FewmanCardAutoLoad, FewmanCard},
+    components: {FewvulationBlock, FewmanCardAutoLoad, FewmanCard},
     data() {
         return {
             isError: false,
@@ -100,9 +106,13 @@ export default {
             isFavoriteSelected: false,
             f1Id: 0,
             pairFewmans: [],
+            nextId: 0,
         }
     },
     methods: {
+        updateNextId(id) {
+            this.nextId = +id
+        },
         clearQuery() {
             this.address = ''
             this.loaded = false
@@ -128,6 +138,7 @@ export default {
             this.loaded = false
             this.loading = true
             this.tokenIds = [...(await fewmanDB.loadTokensOfAddress(address))]
+            this.tokenIds.sort((a, b) => (a - b))
             this.loading = false
             this.loaded = true
             console.log(`tokenIds of ${address} are `, this.tokenIds)
@@ -142,6 +153,8 @@ export default {
         clearF1() {
             this.isFavoriteSelected = false
             breedState.setF1(null)
+        },
+        loadedFew() {
         },
         makePairs() {
             this.pairFewmans = []
@@ -160,7 +173,7 @@ export default {
                     console.warn(`F2 = ${tokenId} has now cached fewman!`)
                 }
 
-                const {child, reason, needGold, outGold} = breedState.breed(f1Fewman, f2Fewman, fewmanDB.nextId)
+                const {child, reason, needGold, outGold} = breedState.breed(f1Fewman, f2Fewman, this.nextId)
                 if(child) {
                     this.pairFewmans.push({f1Fewman, f2Fewman, child})
                 }

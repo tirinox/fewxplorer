@@ -2,7 +2,7 @@
     <h1>Breed Emulator V2</h1>
     <em>Только члены тайного Ордена допущены в это Святилище!</em>
     <hr>
-    <FewvulationBlock :is-testnet="false"></FewvulationBlock>
+    <FewvulationBlock :is-testnet="false" @update-next-id="updateNextId"></FewvulationBlock>
     <hr>
     <div class="row m-1">
         <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
@@ -91,6 +91,7 @@ export default {
             needGold: 0,
             outGold: 0,
             autoUpdaterTimer: null,
+            nextId: 0,
         }
     },
     beforeMount() {
@@ -105,12 +106,11 @@ export default {
             }, Config.AUTO_UPDATE_TIME)
         }
     },
-    computed: {
-        nextId() {
-            return 0
-        }
-    },
     methods: {
+        updateNextId(id) {
+            this.nextId = +id
+        },
+
         async loadFewmansFromRoute() {
             await this.loadFewman(this.$route.params.f1, 'F1')
             await this.loadFewman(this.$route.params.f2, 'F2')
