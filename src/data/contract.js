@@ -133,7 +133,7 @@ export async function loadLastGeneratedTokenId(isTestnet) {
         const {fewmansContract, breedContract} = getFewmansContracts(isTestnet)
 
         const supply = await fewmansContract.readTotalSupply()
-        return await fewmansContract.getTokenByIndex(+supply - 1)
+        return parseInt(await fewmansContract.getTokenByIndex(+supply - 1))
     } catch (e) {
         return {error: e}
     }
@@ -149,21 +149,37 @@ export async function loadFewvulationState(isTestnet) {
 
         const now = nowTS()
         let state = 'finished'
-        let secondsToNextEvent = now - nextFewvulation - duration
+        let nextEventTS = nextFewvulation
         if(now < nextFewvulation) {
             state = 'soon'
-            secondsToNextEvent = nextFewvulation - now
         } else if(now < nextFewvulation + duration) {
             state = 'active'
-            secondsToNextEvent = nextFewvulation + duration - now
+            nextEventTS = nextFewvulation + duration
         }
 
         return {
             duration,
             nextFewvulation,
             state,
-            secondsToNextEvent,
+            nextEventTS,
         }
+    } catch (e) {
+        return {error: e}
+    }
+}
+
+export async function getPendingBreedingTXS(isTestnet) {
+    try {
+        isTestnet = isTestnet || false
+
+        const web3 = isTestnet ? holder.testWeb3 : holder.web3
+        const breedAddress = isTestnet ? Config.FEWMANS_BREED_CONTRACT_TEST : Config.FEWMANS_BREED_CONTRACT
+        const pending = await web3.eth.getBlock('pending', true)
+        if(!pending.transactions) {
+            return {error: 'no TXS loaded'}
+        }
+        const txs = pending.transactions
+        return txs.filter(tx => tx.to === breedAddress)
     } catch (e) {
         return {error: e}
     }
