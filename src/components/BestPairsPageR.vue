@@ -184,9 +184,11 @@ export default {
             console.info(this.pairFewmans)
         }
     },
+    beforeMount() {
+        setupInfura(this.$route.params.infura)
+    },
     mounted() {
         breedState.setF1(null)
-        setupInfura(this.$route.params.infura)
         const preAddress = (this.$route.params.address || localStorage.getItem(LS_ADDRESS_KEY) || '').trim()
         if (preAddress !== '' && preAddress.startsWith('0x')) {
             this.address = preAddress
