@@ -5,6 +5,7 @@ import {Config} from "./config";
 
 const PRICE_API_URL = 'https://fewmans.xyz/fewpi/opensea/'
 const TOKEN_ID_API_URL = 'https://fewmans.xyz/fewpi/tokenids/'
+const ADDRESS_TOKENS_API_URL = 'https://fewmans.xyz/fewpi/address/'
 
 
 export const COUNTER_STARS = '_stars'
@@ -252,6 +253,15 @@ export class FewmanDBv2 {
         this._parsePriceData(priceResults.data)
         this.lastTimeLoaded = nowTS()
         this._saveToLocalStorage(tokenIdResults.data, priceResults.data)
+    }
+
+    async loadTokensOfAddress(address) {
+        if(!address.startsWith('0x') || address.length < 40) {
+            return []
+        }
+        const url = ADDRESS_TOKENS_API_URL + address
+        const result = await axios.get(url)
+        return result.data['tokensIds']
     }
 }
 

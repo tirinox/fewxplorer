@@ -174,7 +174,7 @@ export default {
                    ref="searchQuery"
                    v-model="query"
                    v-debounce.lock:800="doSearch"
-                   :disabled="!allLoaded"
+                   :disabled="!loaded"
                    :class="{'is-invalid': isError}"
                    placeholder="Enter FEW words for search..."
                    class="form-control"

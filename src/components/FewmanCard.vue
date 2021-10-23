@@ -16,12 +16,12 @@
                 <span class="male gender" v-else>Male</span>
             </div>
 
-            <div class="float-end few-tier gender">
-                Tier {{ sourceFewman.tier }}
+            <div class="float-end few-tier gender gen">
+                Gen {{ sourceFewman.generation }}
             </div>
 
-            <div class="float-end few-tier gender" v-if="sourceFewman.generation > 0">
-                Gen {{ sourceFewman.generation }}
+            <div class="float-end few-tier gender">
+                Tier {{ sourceFewman.tier }}
             </div>
 
             <h6 class="few-title" v-if="child && isChildNow">
@@ -30,7 +30,6 @@
             <h6 class="few-title" v-else>
                 Fewman #{{ fewman.id }}
             </h6>
-
         </div>
         <div class="card-body">
             <div class="row">
@@ -106,7 +105,7 @@
                 <a @click="setF1">
                     <span v-if="globalF1 === fewman.id">✔️</span>F1
                 </a>
-                <router-link :to="'/breedem/' + globalF1 + '/' + fewman.id" v-if="globalF1 !== fewman.id">
+                <router-link :to="'/breedem/' + globalF1 + '/' + fewman.id" v-if="globalF1 !== fewman.id && !hideF2">
                     ▪
                     F2
                 </router-link>
@@ -134,7 +133,8 @@ const RIGHT_NAMES = [
 
 export default {
     name: "FewmanCard",
-    props: ['fewman', 'child', 'hideBreeding', 'dead', 'isTest'],
+    props: ['fewman', 'child', 'hideBreeding', 'dead', 'isTest', 'hideF2'],
+    emits: ['setF1'],
     data() {
         return {
             isChildNow: false,
@@ -187,7 +187,8 @@ export default {
         },
         setF1() {
             state.setF1(this.sourceFewman.id)
-            console.log(state.f1TokenId.value)
+            console.log('Set F1', state.f1TokenId.value)
+            this.$emit('setF1', state.f1TokenId.value)
         }
     },
     mounted() {
@@ -236,10 +237,6 @@ a {
     line-height: 110%;
 }
 
-.rect {
-    border-radius: 0 !important;
-}
-
 .card-header {
     background-color: #222;
 }
@@ -286,6 +283,10 @@ a {
 
 .price-bid {
     background-color: #0a53be;
+}
+
+.gen {
+    color: #fff8c8;
 }
 
 </style>

@@ -6,6 +6,7 @@ import BreedEmulatorPage from "./components/BreedEmulatorPage.vue";
 import TestFewiewer from "./components/TestFewiewer.vue";
 import BreedEmulatorPageR from "./components/BreedEmulatorPageR.vue";
 import NotFoundPage from "./components/NotFoundPage.vue";
+import BestPairsPageR from "./components/BestPairsPageR.vue";
 
 
 const routes = [
@@ -37,24 +38,34 @@ const routes = [
 
     // ------ test -----
     {
-        path: "/rr/test-fewiewer/:infura",
+        path: "/rr-go/test-fewiewer/:infura",
         name: "TestFewiewer",
         component: TestFewiewer,
     },
     {
-        path: "/rr/test-fewiewer/:infura/:tokenIds",
+        path: "/rr-go/test-fewiewer/:infura/:tokenIds",
         name: "TestFewiewerTokens",
         component: TestFewiewer,
     },
     {
-        path: "/rr/breedem-v2/:infura",
+        path: "/rr-go/breedem-v2/:infura",
         name: "BreedEmV2",
         component: BreedEmulatorPageR,
     },
     {
-        path: "/rr/breedem-v2/:infura/:f1/:f2",
+        path: "/rr-go/breedem-v2/:infura/:f1/:f2",
         name: "BreedEmV2Pre",
         component: BreedEmulatorPageR,
+    },
+    {
+        path: "/rr-go/our-best-pairs/:infura",
+        name: "BestPairs",
+        component: BestPairsPageR,
+    },
+    {
+        path: "/rr-go/our-best-pairs/:infura/:address",
+        name: "BestPairsAddr",
+        component: BestPairsPageR,
     },
 
     // ----- 404 ---

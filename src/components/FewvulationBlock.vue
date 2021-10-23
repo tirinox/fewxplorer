@@ -35,7 +35,7 @@
 
             <div v-if="childError" class="text-danger">{{ childError.toString() }}</div>
 
-            <div v-if="pendingTxCount === 0">Никто не бридит сейчас!
+            <div v-if="pendingTxCount === 0">Вроде бы никто не бридит сейчас.
                 <strong>Высокая вероятность угадать пол.</strong>
             </div>
             <div v-else>Сейчас {{ pendingTxCount}} транзакций в ожидании бридинга.
@@ -71,6 +71,7 @@ export default {
             nextTokenId: 10555,
             childLoading: false,
             childError: null,
+            childLastLoadTS: 0,
             pendingError: null,
             pendingTxCount: 0,
         }
@@ -80,7 +81,7 @@ export default {
             return !this.noData && this.state.state === 'finished'
         },
         isInProgress() {
-            return !this.noData && this.state.state === 'progress'
+            return !this.noData && this.state.state === 'active'
         },
         isSoon() {
             return !this.noData && this.state.state === 'soon'
@@ -109,19 +110,24 @@ export default {
                 console.info('Loading Fewvulation state...')
                 this.state = await loadFewvulationState(Boolean(this.isTestnet))
                 this.loadingFewvulation = false
-                console.info(`Fewvulation state loaded: ${this.state.state}.`)
+                console.info(`Fewvulation state loaded: ${JSON.stringify(this.state)}.`)
             }
         },
 
         async loadNextChild() {
             this.childLoading = true
             this.childError = null
+
+            console.log('loadNextChild...')
+
             const lastId = await loadLastGeneratedTokenId(Boolean(this.isTestnet))
             if(lastId.error) {
                 this.childError = lastId.error
             } else {
                 this.nextTokenId = (lastId + 1)
             }
+
+            console.log(lastId)
 
             await this.loadPendingTXS()
 
@@ -130,11 +136,13 @@ export default {
 
         async loadPendingTXS() {
             this.pendingError = null
-            const r = await getPendingBreedingTXS()
+            const r = await getPendingBreedingTXS(Boolean(this.isTestnet))
             if(r.error) {
                 this.pendingError = r.error
+                console.error(`Pending TX error: ${r.error}`)
             } else {
                 this.pendingTxCount = r.length
+                console.info(`Pending TX count: ${r.length}`)
             }
         },
 
@@ -145,7 +153,10 @@ export default {
             }
 
             if(this.isInProgress) {
-                await this.loadNextChild()
+                if(this.childLastLoadTS + Config.FEWVULATION_CHILD_UPDATE_TIME < nowTS()) {
+                    this.childLastLoadTS = nowTS()
+                    await this.loadNextChild()
+                }
             }
         },
     },

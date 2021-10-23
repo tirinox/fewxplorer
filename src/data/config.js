@@ -10,6 +10,7 @@ export const Config = {
     AUTO_UPDATE_TIME: 2000, // ms
 
     FEWVULATION_AUTO_UPDATE_TIME: 30, // secs
+    FEWVULATION_CHILD_UPDATE_TIME: 3, // secs
     FEWVULATION_TICK_TIME: 1000, // ms
 
     // explorer

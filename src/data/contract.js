@@ -168,18 +168,31 @@ export async function loadFewvulationState(isTestnet) {
     }
 }
 
+let t = false
+
 export async function getPendingBreedingTXS(isTestnet) {
     try {
         isTestnet = isTestnet || false
 
         const web3 = isTestnet ? holder.testWeb3 : holder.web3
-        const breedAddress = isTestnet ? Config.FEWMANS_BREED_CONTRACT_TEST : Config.FEWMANS_BREED_CONTRACT
+        const breedAddress = (isTestnet ? Config.FEWMANS_BREED_CONTRACT_TEST : Config.FEWMANS_BREED_CONTRACT).toLowerCase().trim()
         const pending = await web3.eth.getBlock('pending', true)
         if(!pending.transactions) {
             return {error: 'no TXS loaded'}
         }
         const txs = pending.transactions
-        return txs.filter(tx => tx.to === breedAddress)
+
+        // fixme: debug
+        // const tos = txs.map(tx => tx.to)
+        // console.warn(tos)
+        //
+        // if(!t) {
+        //     console.log(txs)
+        //     t = true
+        // }
+        // fixme: debug
+
+        return txs.filter(tx => tx.to.toLowerCase().trim() === breedAddress)
     } catch (e) {
         return {error: e}
     }

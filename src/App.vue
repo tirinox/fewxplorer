@@ -237,6 +237,10 @@ ul {
     color: #00BECA;
 }
 
+.rect {
+    border-radius: 0 !important;
+}
+
 code {
     font-family: "Courier New", Courier, monospace !important;
 }

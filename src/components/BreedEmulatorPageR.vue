@@ -2,7 +2,7 @@
     <h1>Breed Emulator V2</h1>
     <em>Только члены тайного Ордена допущены в это Святилище!</em>
     <hr>
-    <FewvulationBlock></FewvulationBlock>
+    <FewvulationBlock :is-testnet="false"></FewvulationBlock>
     <hr>
     <div class="row m-1">
         <div class="col-xl-4 col-lg-4 col-md-6 mb-4">
