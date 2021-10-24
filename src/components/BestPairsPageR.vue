@@ -138,7 +138,7 @@ export default {
             this.loaded = false
             this.loading = true
             this.tokenIds = [...(await fewmanDB.loadTokensOfAddress(address))]
-            this.tokenIds.sort((a, b) => (a - b))
+            this.tokenIds.sort((a, b) => (b - a))
             this.loading = false
             this.loaded = true
             console.log(`tokenIds of ${address} are `, this.tokenIds)
