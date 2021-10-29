@@ -126,7 +126,9 @@ export function genderByTokenId(tokenId) {
     }
 }
 
-export function decodePersonality(tokenId, traitArr, owner, generation) {
+const MEDIOCRITY_PERSON = ['5', '5', '5', '5', '5', '5', '5', '5']
+
+export function decodePersonality(tokenId, traitArr, owner, generation, dead) {
     if (traitArr instanceof String) {
         traitArr = traitArr.split('')
     }
@@ -141,7 +143,7 @@ export function decodePersonality(tokenId, traitArr, owner, generation) {
         owner,
         generation,
         originalArr: traitArr,
-        dead: false,
+        dead: Boolean(dead),
     }
     let index = 0
     let totalStars = 0
@@ -160,6 +162,12 @@ export function decodePersonality(tokenId, traitArr, owner, generation) {
 
         fewman.p.push(traitValueStr, stars)
     }
+
+    if (totalStars === 24 && dead) {
+        // bugfix
+        return decodePersonality(tokenId, MEDIOCRITY_PERSON, owner, generation, dead)
+    }
+
     fewman.stars = totalStars
     fewman.tier = tier
     return fewman
@@ -244,7 +252,7 @@ export function initialPersonalityArr(tokenNumber) {
 
 export function gen0fewman(id) {
     id = +id
-    if(id < 0 || id > 9999) {
+    if (id < 0 || id > 9999) {
         return null
     }
     const f = decodePersonality(id, initialPersonalityArr(id), null, 0)

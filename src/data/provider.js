@@ -139,8 +139,7 @@ export class FewmanDBv2 {
         this._idToFewman = {}
         this._tokensAsList = []
         for (const [ident, personalityStr, owner, generation, dead] of Object.values(data['ids'])) {
-            const fewman = decodePersonality(ident, personalityStr, owner, generation)
-            fewman.dead = Boolean(dead)
+            const fewman = decodePersonality(ident, personalityStr, owner, generation, dead)
             this._idToFewman[ident] = fewman
             this._tokensAsList.push(fewman)
             this._maxId = Math.max(this._maxId, ident)
