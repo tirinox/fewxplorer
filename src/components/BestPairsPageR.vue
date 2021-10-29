@@ -1,6 +1,6 @@
 <template>
-    <h1>Best Pairs Calc</h1>
-    <p>This tool will suggest best fair for selected Fewman among Fewmans on your address.</p>
+    <h1>Best Couples Calc</h1>
+    <p>This tool will suggest the best pairs for selected Fewman among Fewmans on your address.</p>
     <hr>
 
     <FewvulationBlock :is-testnet="false" @update-next-id="updateNextId"></FewvulationBlock>
@@ -18,18 +18,18 @@
                v-model="address"
                v-debounce.lock:800="doSearch"
                :class="{'is-invalid': isError}"
-               placeholder="Введите адрес 0x..."
+               placeholder="Enter an address 0x..."
                class="form-control rect"
         />
         <div class="input-group-append">
             <button class="btn btn-danger rect" @click="clearQuery" v-show="this.address.length > 0">X</button>
-            <button class="btn btn-secondary rect" @click="refreshButton">Обнови</button>
+            <button class="btn btn-secondary rect" @click="refreshButton">Update</button>
         </div>
     </div>
 
     <div class="mt-2">
-        <strong>Если вы не видите всех новых Фьманов на кошельке, введите их ID через запятую (пример:
-            10555,10557,10558):</strong>
+        <strong>If you do not see all the new Fewmans on your wallet, enter their IDs, separated by commas (example:
+            10555, 10557, 10558):</strong>
     </div>
 
     <div class="input-group">
@@ -37,20 +37,20 @@
                ref="extraInput"
                v-model="extraIdsStr"
                v-debounce.lock:800="updateTokenTable"
-               placeholder="Введите дополнительные ID Fewman через запятую..."
+               placeholder="Enter additional Fewman IDs, separated by commas..."
                class="form-control rect"
         />
     </div>
 
     <div v-if="loaded && !isFavoriteSelected" class="mt-4">
-        <h6>Выберите Фьюмана за основу, мы подберем ему пары из остальных:</h6>
+        <h6>Pick Fewman as the basis (F1), we'll match him up with the others:</h6>
         <div class="row m-1 mt-4">
 
             <div class="col-xl-4 col-lg-4 col-md-6 mb-4" v-for="tokenId in tokenIds" :key="tokenId">
                 <FewmanCardAutoLoad :token-id="tokenId" @setF1="setF1" @loaded="loadedFew"></FewmanCardAutoLoad>
             </div>
             <div class="text-center" v-if="!tokenIds.length">
-                <h2 class="m-4">На этом адресе нет Fewmans.</h2>
+                <h2 class="m-4">There are no Fewmans at this address.</h2>
             </div>
         </div>
     </div>
@@ -59,14 +59,14 @@
         <hr>
 
         <div>
-            <h5 class="p-1">Вы выбрали этого как F1: #{{ f1Id }}</h5>
+            <h5 class="p-1">You chose this one as an F1: #{{ f1Id }}</h5>
             <button class="btn btn-warning rect center" @click="clearF1">
-                <strong>Выбрать другого?</strong>
+                <strong>Choose another?</strong>
             </button>
         </div>
 
         <hr>
-        <h5>Лучшие пары:</h5>
+        <h5>Best couples:</h5>
         <div class="row" v-for="{f1Fewman, f2Fewman, child} of pairFewmans">
             <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
                 <FewmanCard :fewman="f1Fewman" :hide-breeding="true"></FewmanCard>
@@ -85,7 +85,7 @@
             </div>
         </div>
         <div class="text-center" v-if="!pairFewmans.length">
-            <h2 class="m-4 text-danger">Нет доступных пар!</h2>
+            <h2 class="m-4 text-danger">No available couples!</h2>
         </div>
         <hr>
     </div>
