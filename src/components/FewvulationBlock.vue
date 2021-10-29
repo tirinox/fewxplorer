@@ -18,7 +18,7 @@
             <span v-if="isFinished">
                 Since last Fewvulation:<br>
                 <span class="display-5">{{ nextEventTime }}</span><br>
-                When will be the next? I don't know.
+                When will be the next? I don't know. Wait for an announcement.
             </span>
 
             <div v-if="state.error" class="text-danger">{{ state.error.toString() }}</div>
