@@ -1,5 +1,5 @@
 <template>
-    <div class="card rect">
+    <div class="card rect" :class="{'dead': sourceFewman.dead}">
         <div
             class="price-tag"
             v-if="!isTest && price > 0"
@@ -29,6 +29,7 @@
             </h6>
             <h6 class="few-title" v-else>
                 Fewman #{{ fewman.id }}
+                <i v-if="sourceFewman.dead" class="badge bg-danger">dead</i>
             </h6>
         </div>
         <div class="card-body">
@@ -287,6 +288,14 @@ a {
 
 .gen {
     color: #fff8c8;
+}
+
+.dead {
+    opacity: 70%;
+}
+
+.dead-title {
+    text-decoration: line-through;
 }
 
 </style>
