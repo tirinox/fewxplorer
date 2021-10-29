@@ -93,11 +93,26 @@ export default {
                         <li class="nav-item">
                             <router-link class="nav-link" to="/rarity">Rarity</router-link>
                         </li>
-                        <li class="nav-item">
-                            <router-link class="nav-link" to="/breedem">BreedEm</router-link>
-                        </li>
+
+
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                BreedEm
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown_breed">
+                                <li>
+                                    <router-link class="dropdown-item" to="/breedem">Simple</router-link>
+                                </li>
+                                <li>
+                                    <router-link class="dropdown-item" to="/our-best-pairs">Best pairs</router-link>
+                                </li>
+                            </ul>
+                        </li>
+
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown_links" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">
                                 Links
                             </a>
@@ -243,6 +258,10 @@ ul {
 
 code {
     font-family: "Courier New", Courier, monospace !important;
+}
+
+kbd {
+    font-family: Consolas, "Courier New", Courier, monospace;
 }
 
 </style>

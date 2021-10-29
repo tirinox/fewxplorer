@@ -2,7 +2,7 @@
 
 import RarityCard from "./RarityCard.vue";
 import {TRAIT_NAMES} from "../data/personality";
-import {COUNTER_GENDER, COUNTER_STARS, COUNTER_TIER, fewmanDB} from "../data/provider";
+import {COUNTER_GENERATION, COUNTER_GENDER, COUNTER_STARS, COUNTER_TIER, fewmanDB} from "../data/provider";
 import mitt from "../helpers/mitt";
 
 export default {
@@ -15,6 +15,7 @@ export default {
             cardsNames: [
                 COUNTER_TIER,
                 COUNTER_STARS,
+                COUNTER_GENERATION,
                 COUNTER_GENDER,
                 ...TRAIT_NAMES
             ],
@@ -24,7 +25,7 @@ export default {
     },
     mounted() {
         mitt.on('data_loaded', () => {
-            this.totalFewmans = fewmanDB.totalFewmans
+            this.totalFewmans = fewmanDB.totalAliveFewmans
             this.lastUpdateTS = fewmanDB.tokenIdLastTS
         })
     }

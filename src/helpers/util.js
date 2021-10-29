@@ -4,6 +4,21 @@ export function nowTS() {
     return Math.floor(Date.now() / 1000)
 }
 
+Date.prototype.getUTCTime = function(){
+    return new Date(
+        this.getUTCFullYear(),
+        this.getUTCMonth(),
+        this.getUTCDate(),
+        this.getUTCHours(),
+        this.getUTCMinutes(),
+        this.getUTCSeconds()
+    ).getTime();
+}
+
+export function nowTS_UTC() {
+    return Math.floor((new Date()).getTime() / 1000)
+}
+
 export function agoTS(value) {
     if (value) {
         return timeago.format(new Date(value * 1000))
@@ -46,4 +61,20 @@ export function compare(x, y) {
     } else {
         return 0
     }
+}
+
+function zeroPad(num, places) {
+    var zero = places - num.toString().length + 1;
+    return Array(+(zero > 0 && zero)).join("0") + num;
+}
+
+const DAY_S = 60 * 60 * 24
+const HOUR_S = 60 * 60
+
+export function countdownFormat(distance) {
+    const days = Math.floor(distance / DAY_S);
+    const hours = Math.floor((distance % DAY_S) / HOUR_S);
+    const minutes = Math.floor((distance % HOUR_S) / 60);
+    const seconds = Math.floor(distance % 60);
+    return `${days} days ${zeroPad(hours, 2)}:${zeroPad(minutes, 2)}:${zeroPad(seconds, 2)}`
 }

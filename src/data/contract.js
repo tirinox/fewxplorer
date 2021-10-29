@@ -11,6 +11,7 @@ import {Config} from "./config";
 
 
 export function getInfuraWeb3(projectToken, test) {
+    projectToken = projectToken || Config.DEFAULT_KEY
     let url = ''
     if (test) {
         url = `https://ropsten.infura.io/v3/${projectToken}`
@@ -92,7 +93,6 @@ const holder = {
 }
 
 export function setupInfura(projectId) {
-
     holder.web3 = getInfuraWeb3(projectId)
     holder.testWeb3 = getInfuraWeb3(projectId, true)
 

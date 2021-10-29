@@ -1,8 +1,6 @@
 <template>
     <h1>Best Pairs Calc</h1>
-    <em>Только члены тайного Ордена допущены в это Святилище!</em>
-    <p>Этот инструмент подберет лучшие пары из вашего адреса.</p>
-
+    <p>This tool will suggest best fair for selected Fewman among Fewmans on your address.</p>
     <hr>
 
     <FewvulationBlock :is-testnet="false" @update-next-id="updateNextId"></FewvulationBlock>
@@ -11,12 +9,12 @@
 
     <div>
         <span class="spinner-border spinner-border-sm" v-if="loading"></span>
-        <h6>Сначала введите адрес:</h6>
+        <h6>First enter ETH address 0x...:</h6>
     </div>
 
     <div class="input-group">
         <input type="text"
-               ref="idInput"
+               ref="addressInput"
                v-model="address"
                v-debounce.lock:800="doSearch"
                :class="{'is-invalid': isError}"
@@ -27,6 +25,21 @@
             <button class="btn btn-danger rect" @click="clearQuery" v-show="this.address.length > 0">X</button>
             <button class="btn btn-secondary rect" @click="refreshButton">Обнови</button>
         </div>
+    </div>
+
+    <div class="mt-2">
+        <strong>Если вы не видите всех новых Фьманов на кошельке, введите их ID через запятую (пример:
+            10555,10557,10558):</strong>
+    </div>
+
+    <div class="input-group">
+        <input type="text"
+               ref="extraInput"
+               v-model="extraIdsStr"
+               v-debounce.lock:800="updateTokenTable"
+               placeholder="Введите дополнительные ID Fewman через запятую..."
+               class="form-control rect"
+        />
     </div>
 
     <div v-if="loaded && !isFavoriteSelected" class="mt-4">
@@ -86,6 +99,7 @@ import {setupInfura} from "../data/contract";
 import useBreedingState from "../data/breed";
 import FewmanCard from "./FewmanCard.vue";
 import FewvulationBlock from "./FewvulationBlock.vue";
+import mitt, {EVENTS} from "../helpers/mitt";
 
 const breedState = useBreedingState()
 
@@ -102,12 +116,24 @@ export default {
             loading: false,
             loaded: false,
             results: [],
+            addressTokenIds: [],
             tokenIds: [],
             isFavoriteSelected: false,
             f1Id: 0,
             pairFewmans: [],
             nextId: 0,
+            extraIdsStr: '',
         }
+    },
+    computed: {
+        extraTokenIdsArray() {
+            const arr = this.extraIdsStr
+                .split(',')
+                .map(s => s.trim())
+                .filter(s => (s !== undefined && s !== ''))
+                .map(s => +s)
+            return arr
+        },
     },
     methods: {
         updateNextId(id) {
@@ -129,6 +155,16 @@ export default {
                 await this.reload(address)
             }
         },
+        updateTokenTable() {
+            this.isFavoriteSelected = false
+
+            const allTokens = [...new Set([...this.addressTokenIds, ...this.extraTokenIdsArray])]
+            allTokens.sort((a, b) => (b - a))
+            this.tokenIds = allTokens
+
+            this.loading = false
+            this.loaded = true
+        },
         async reload(address) {
             console.info(`BestPairsPageR: address loading: ${address}`)
             localStorage.setItem(LS_ADDRESS_KEY, address)
@@ -137,10 +173,13 @@ export default {
             this.isFavoriteSelected = false
             this.loaded = false
             this.loading = true
-            this.tokenIds = [...(await fewmanDB.loadTokensOfAddress(address))]
-            this.tokenIds.sort((a, b) => (b - a))
+
+            this.addressTokenIds = await fewmanDB.loadTokensOfAddress(address)
+            this.updateTokenTable()
+
             this.loading = false
             this.loaded = true
+
             console.log(`tokenIds of ${address} are `, this.tokenIds)
         },
         setF1(f1) {
@@ -148,6 +187,7 @@ export default {
                 this.isFavoriteSelected = true
                 this.f1Id = f1
                 this.makePairs()
+                mitt.emit(EVENTS.SCROLL_TOP)
             }
         },
         clearF1() {
@@ -159,26 +199,26 @@ export default {
         makePairs() {
             this.pairFewmans = []
             const f1Fewman = FewmanCardAutoLoad.getFewmanFromCache(this.f1Id, false)
-            if(!f1Fewman) {
+            if (!f1Fewman) {
                 console.warn(`F1 = ${this.f1Id} has now cached fewman!`)
                 return
             }
 
-            for(const tokenId of this.tokenIds) {
-                if(tokenId === this.f1Id) {
+            for (const tokenId of this.tokenIds) {
+                if (tokenId === this.f1Id) {
                     continue
                 }
                 const f2Fewman = FewmanCardAutoLoad.getFewmanFromCache(tokenId, false)
-                if(!f2Fewman) {
+                if (!f2Fewman) {
                     console.warn(`F2 = ${tokenId} has now cached fewman!`)
                 }
 
                 const {child, reason, needGold, outGold} = breedState.breed(f1Fewman, f2Fewman, this.nextId)
-                if(child) {
+                if (child) {
                     this.pairFewmans.push({f1Fewman, f2Fewman, child})
                 }
             }
-            this.pairFewmans.sort(function(a, b) {
+            this.pairFewmans.sort(function (a, b) {
                 return b.child.stars - a.child.stars
             })
             console.info(this.pairFewmans)
@@ -199,5 +239,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

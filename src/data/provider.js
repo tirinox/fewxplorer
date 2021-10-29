@@ -8,6 +8,7 @@ const TOKEN_ID_API_URL = 'https://fewmans.xyz/fewpi/tokenids/'
 const ADDRESS_TOKENS_API_URL = 'https://fewmans.xyz/fewpi/address/'
 
 
+export const COUNTER_GENERATION = '_gen'
 export const COUNTER_STARS = '_stars'
 export const COUNTER_TIER = '_tier'
 export const COUNTER_GENDER = '_gender'
@@ -28,7 +29,12 @@ export class FewmanDBv2 {
 
         this._maxId = 0
 
+        this._totalAliveFewmans = 0
         this.tokenIdLastTS = 0
+    }
+
+    get totalAliveFewmans() {
+        return this._totalAliveFewmans
     }
 
     get totalFewmans() {
@@ -123,6 +129,7 @@ export class FewmanDBv2 {
         const data = tokenIdResults.db
 
         this._maxId = 0
+        this._totalAliveFewmans = 0
 
         this.tokenIdLastTS = +data.lastUpdatedTS
         this._counters = {}
@@ -131,18 +138,23 @@ export class FewmanDBv2 {
 
         this._idToFewman = {}
         this._tokensAsList = []
-        for (const [ident, personalityStr, owner, generation] of Object.values(data['ids'])) {
+        for (const [ident, personalityStr, owner, generation, dead] of Object.values(data['ids'])) {
             const fewman = decodePersonality(ident, personalityStr, owner, generation)
+            fewman.dead = Boolean(dead)
             this._idToFewman[ident] = fewman
             this._tokensAsList.push(fewman)
             this._maxId = Math.max(this._maxId, ident)
 
             // update stats
-            this._incrementCounter(COUNTER_GENDER, fewman.gender)
-            this._incrementCounter(COUNTER_TIER, fewman.tier)
-            this._incrementCounter(COUNTER_STARS, fewman.stars)
-            for (const [key, value] of Object.entries(fewman.traits)) {
-                this._incrementCounter(key, value[0])
+            if(!fewman.dead) {
+                this._totalAliveFewmans++
+                this._incrementCounter(COUNTER_GENDER, fewman.gender)
+                this._incrementCounter(COUNTER_GENERATION, fewman.generation)
+                this._incrementCounter(COUNTER_TIER, fewman.tier)
+                this._incrementCounter(COUNTER_STARS, fewman.stars)
+                for (const [key, value] of Object.entries(fewman.traits)) {
+                    this._incrementCounter(key, value[0])
+                }
             }
         }
 

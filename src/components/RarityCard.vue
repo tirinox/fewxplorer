@@ -21,7 +21,7 @@
 
 <script>
 
-import {COUNTER_GENDER, COUNTER_STARS, COUNTER_TIER, fewmanDB} from "../data/provider";
+import {COUNTER_GENDER, COUNTER_GENERATION, COUNTER_STARS, COUNTER_TIER, fewmanDB} from "../data/provider";
 import mitt from "../helpers/mitt";
 import {TRAIT_STARS_DIC} from "../data/personality";
 import {compare} from "../helpers/util";
@@ -48,6 +48,8 @@ export default {
                 q = `stars ${n}`
             } else if (this.name === COUNTER_TIER) {
                 q = `tier ${n}`
+            } else if (this.name === COUNTER_GENERATION) {
+                q = `gen ${n}`
             }
 
             return `/?q=${encodeURI(q)}`
@@ -60,21 +62,25 @@ export default {
             const traitStartDic = TRAIT_STARS_DIC[traitName]
             const total = fewmanDB.totalFewmans
 
-            if(traitName === COUNTER_GENDER) {
+            if (traitName === COUNTER_GENDER) {
                 this.title = 'Gender'
-            } else if(traitName === COUNTER_STARS) {
+            } else if (traitName === COUNTER_STARS) {
                 this.title = 'Total stars'
-            } else if(traitName === COUNTER_TIER) {
+            } else if (traitName === COUNTER_TIER) {
                 this.title = 'Tier'
+            } else if (traitName === COUNTER_GENERATION) {
+                this.title = 'Generation'
             } else {
                 this.title = traitName
             }
 
             const elements = Object.entries(dic).map(([name, count]) => {
                 let stars = traitStartDic ? traitStartDic[name] : 0
-                if(traitName === COUNTER_TIER || traitName === COUNTER_STARS) {
+                if (traitName === COUNTER_TIER || traitName === COUNTER_STARS) {
                     stars = +name
                     name = stars
+                } else if(traitName === COUNTER_GENERATION) {
+                    name = `Gen ${name}`
                 }
                 return {
                     name, count, stars,

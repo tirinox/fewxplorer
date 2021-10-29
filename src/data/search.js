@@ -11,6 +11,8 @@ function makeError(i) {
     }
 }
 
+const MAX_TIER = 3
+
 export function semanticSearch(q, startIndex) {
     startIndex = startIndex || 0
 

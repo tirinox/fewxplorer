@@ -125,7 +125,7 @@ export default {
             this.doSearch()
             this.focusSearch()
 
-            this.totalTokens = fewmanDB.totalFewmans
+            this.totalTokens = fewmanDB.totalAliveFewmans
             this.lastTokenUpdateTS = fewmanDB.tokenIdLastTS
             this.priceBestTS = fewmanDB.priceBestTS
             this.loaded = true

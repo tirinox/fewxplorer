@@ -1,6 +1,5 @@
 <template>
     <h1>Breed Emulator V2</h1>
-    <em>Только члены тайного Ордена допущены в это Святилище!</em>
     <hr>
     <FewvulationBlock :is-testnet="false" @update-next-id="updateNextId"></FewvulationBlock>
     <hr>

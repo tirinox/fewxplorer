@@ -2,49 +2,41 @@
     <div class="row">
         <div class="col-4">
             <h4>
-                <mark class="text-danger" v-if="noData">Нет данных о бридинге!</mark>
-                <mark class="text-warning" v-if="isFinished">Бридинг прошел!</mark>
-                <mark class="text-primary" v-if="isSoon">Скоро бридинг!</mark>
-                <mark class="text-success" v-if="isInProgress">Время любви!</mark>
+                <mark class="text-danger" v-if="noData">No data loaded yet!</mark>
+                <mark class="text-warning" v-if="isFinished">Breeding is over!</mark>
+                <mark class="text-primary" v-if="isSoon">Breeding is soon!</mark>
+                <mark class="text-success" v-if="isInProgress">Love time!</mark>
             </h4>
 
             <span v-if="isSoon">
-                Следующий бридинг через {{ nextEventTime }}.
+                Next Fewvulation in <span class="display-5">{{ nextEventTime }}</span>.
             </span>
 
             <span v-if="isInProgress">
-                Осталось времени {{ nextEventTime }}.
+                Fewvulation remaining time: <span class="display-6">{{ nextEventTime }}</span>.
             </span>
             <span v-if="isFinished">
-                Во времени окончания бридинга прошло {{ nextEventTime }}. Когда следующий? Не знаю.
+                Since last Fewvulation:<br>
+                <span class="display-5">{{ nextEventTime }}</span><br>
+                When will be the next? I don't know.
             </span>
 
             <div v-if="state.error" class="text-danger">{{ state.error.toString() }}</div>
         </div>
         <div class="col-auto">
-            <h4>
-                Следующий ребенок:
-            </h4>
+            <h5>
+                The next child will be probably
+            </h5>
 
             <div class="spinner-border spinner-border-sm float-end" v-if="childLoading"></div>
-            <div class="d-inline">
-                <kbd class="male" v-if="nextIsMale">Мальчик</kbd>
-                <kbd class="female" v-else>Девочка</kbd>
-                <span> #{{ nextTokenId }}</span>
+            <div class="d-inline display-6">
+                <kbd class="male" v-if="nextIsMale">Male</kbd>
+                <kbd class="female" v-else>Female</kbd>
             </div>
+            <br>
+            <span class="display-6"><strong>#{{ nextTokenId }}</strong></span>
 
             <div v-if="childError" class="text-danger">{{ childError.toString() }}</div>
-
-            <div v-if="pendingTxCount === 0">Вроде бы никто не бридит сейчас.
-                <strong>Высокая вероятность угадать пол.</strong>
-            </div>
-            <div v-else>Сейчас {{ pendingTxCount}} транзакций в ожидании бридинга.
-                <strong>Низкая вероятность угадать пол!</strong>
-            </div>
-
-            <div v-if="pendingError" class="text-danger">
-                Ошибка! Не удалось загрузить инфо об ожидающих транзакциях бридинга
-            </div>
 
         </div>
     </div>
@@ -52,12 +44,8 @@
 
 <script>
 import {Config} from "../data/config";
-import {
-    getPendingBreedingTXS,
-    loadFewvulationState,
-    loadLastGeneratedTokenId
-} from "../data/contract";
-import {agoTS, nowTS} from "../helpers/util";
+import {loadFewvulationState, loadLastGeneratedTokenId} from "../data/contract";
+import {agoTS, countdownFormat, nowTS, nowTS_UTC} from "../helpers/util";
 
 export default {
     name: "FewvulationBlock",
@@ -73,8 +61,7 @@ export default {
             childLoading: false,
             childError: null,
             childLastLoadTS: 0,
-            pendingError: null,
-            pendingTxCount: 0,
+            pendel: 0,
         }
     },
     computed: {
@@ -92,13 +79,16 @@ export default {
         },
         nextEventTime() {
             if (!this.state.nextEventTS) {
-                return 'неизвестно'
+                return 'unknown'
             }
-            let s = agoTS(this.state.nextEventTS)
-            if (!this.isFinished) {
-                s = s.replace(' ago', '')
-            }
-            return s
+            this.pendel;
+            // let s = agoTS(this.state.nextEventTS)
+            // if (!this.isFinished) {
+            //     s = s.replace(' ago', '')
+            // } else {
+            //     s = countdownFormat(Math.abs(nowTS() - this.state.nextEventTS))
+            // }
+            return countdownFormat(Math.abs(nowTS() - this.state.nextEventTS))
         },
         nextIsMale() {
             return this.nextTokenId % 2 === 1
@@ -130,34 +120,21 @@ export default {
 
             this.$emit('updateNextId', this.nextTokenId)
 
-            console.log(lastId)
-
-            await this.loadPendingTXS()
+            console.log('lastId = ', lastId)
 
             this.childLoading = false
         },
 
-        async loadPendingTXS() {
-            this.pendingError = null
-            const r = await getPendingBreedingTXS(Boolean(this.isTestnet))
-            if(r.error) {
-                this.pendingError = r.error
-                console.error(`Pending TX error: ${r.error}`)
-            } else {
-                this.pendingTxCount = r.length
-                console.info(`Pending TX count: ${r.length}`)
-            }
-        },
-
         async timerTick() {
-            if (nowTS() > this.lastLoadedFewvulationTS + Config.FEWVULATION_AUTO_UPDATE_TIME) {
+            this.pendel++
+            if (nowTS_UTC() > this.lastLoadedFewvulationTS + Config.FEWVULATION_AUTO_UPDATE_TIME) {
                 await this.loadDataFromContracts()
-                this.lastLoadedFewvulationTS = nowTS()
+                this.lastLoadedFewvulationTS = nowTS_UTC()
             }
 
             if(this.isInProgress) {
-                if(this.childLastLoadTS + Config.FEWVULATION_CHILD_UPDATE_TIME < nowTS()) {
-                    this.childLastLoadTS = nowTS()
+                if(this.childLastLoadTS + Config.FEWVULATION_CHILD_UPDATE_TIME < nowTS_UTC()) {
+                    this.childLastLoadTS = nowTS_UTC()
                     await this.loadNextChild()
                 }
             }
@@ -179,5 +156,7 @@ export default {
 </script>
 
 <style scoped>
-
+kbd {
+    font-family: 'Press Start 2P', sans-serif;
+}
 </style>

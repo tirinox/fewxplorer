@@ -28,15 +28,24 @@ const routes = [
     {
         path: "/breedem",
         name: "BreedEm",
-        component: BreedEmulatorPage,
+        component: BreedEmulatorPageR,
     },
     {
         path: "/breedem/:f1/:f2",
         name: "BreedEmPre",
-        component: BreedEmulatorPage,
+        component: BreedEmulatorPageR,
+    },
+    {
+        path: "/our-best-pairs",
+        name: "BestPairs",
+        component: BestPairsPageR,
+    },
+    {
+        path: "/our-best-pairs/:address",
+        name: "BestPairsAddr",
+        component: BestPairsPageR,
     },
 
-    // ------ test -----
     {
         path: "/rr-go/test-fewiewer/:infura",
         name: "TestFewiewer",
@@ -46,26 +55,6 @@ const routes = [
         path: "/rr-go/test-fewiewer/:infura/:tokenIds",
         name: "TestFewiewerTokens",
         component: TestFewiewer,
-    },
-    {
-        path: "/rr-go/breedem-v2/:infura",
-        name: "BreedEmV2",
-        component: BreedEmulatorPageR,
-    },
-    {
-        path: "/rr-go/breedem-v2/:infura/:f1/:f2",
-        name: "BreedEmV2Pre",
-        component: BreedEmulatorPageR,
-    },
-    {
-        path: "/rr-go/our-best-pairs/:infura",
-        name: "BestPairs",
-        component: BestPairsPageR,
-    },
-    {
-        path: "/rr-go/our-best-pairs/:infura/:address",
-        name: "BestPairsAddr",
-        component: BestPairsPageR,
     },
 
     // ----- 404 ---
